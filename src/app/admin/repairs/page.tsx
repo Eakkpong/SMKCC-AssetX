@@ -2,6 +2,7 @@ import pool from '@/lib/db';
 import Link from 'next/link';
 import { Edit, Filter } from 'lucide-react';
 import ExportRepairPdfButton from '@/components/ExportRepairPdfButton';
+import ExportSatisfactionPdfButton from '@/components/ExportSatisfactionPdfButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,9 +40,7 @@ export default async function AdminRepairsPage({ searchParams }: { searchParams:
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">รายการแจ้งซ่อม / ปัญหาการใช้งาน</h1>
         <div className="flex space-x-2">
-          <a href="/api/export/satisfaction" className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium text-sm transition flex items-center shadow-sm">
-            <span>ออกรายงานความพึงพอใจ (Excel)</span>
-          </a>
+          <ExportSatisfactionPdfButton data={repairs} month={month} />
           <ExportRepairPdfButton data={repairs} month={month} />
         </div>
       </div>
