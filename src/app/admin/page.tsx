@@ -1,7 +1,12 @@
 import pool from '@/lib/db';
 import { MonitorSmartphone, Users, CheckCircle, AlertTriangle } from 'lucide-react';
+import DashboardFilters from './DashboardFilters';
+import Link from 'next/link';
+import { Edit } from 'lucide-react';
 
-export default async function AdminDashboard() {
+export default async function AdminDashboard({ searchParams }: { searchParams: Promise<{ q?: string, status?: string }> }) {
+  const { q, status } = await searchParams;
+
   const eqCountResult = await pool.query('SELECT COUNT(*) FROM equipments');
   const eqTotal = parseInt(eqCountResult.rows[0].count);
 
@@ -14,11 +19,38 @@ export default async function AdminDashboard() {
   const eqBrokenResult = await pool.query('SELECT COUNT(*) FROM equipments WHERE status != $1', ['ใช้งานได้']);
   const eqBroken = parseInt(eqBrokenResult.rows[0].count);
 
+  // Build query for table
+  let tableQuery = `
+    SELECT e.*, p.first_name, p.last_name, p.title 
+    FROM equipments e
+    LEFT JOIN personnel p ON e.owner_id = p.id
+    WHERE 1=1
+  `;
+  let queryParams: any[] = [];
+  let paramIndex = 1;
+
+  if (q) {
+    tableQuery += ` AND (e.asset_code ILIKE $${paramIndex} OR e.category ILIKE $${paramIndex} OR e.brand ILIKE $${paramIndex} OR e.location ILIKE $${paramIndex})`;
+    queryParams.push(`%${q}%`);
+    paramIndex++;
+  }
+
+  if (status) {
+    tableQuery += ` AND e.status = $${paramIndex}`;
+    queryParams.push(status);
+    paramIndex++;
+  }
+
+  tableQuery += ` ORDER BY e.updated_at DESC LIMIT 50`;
+
+  const equipmentsResult = await pool.query(tableQuery, queryParams);
+  const equipments = equipmentsResult.rows;
+
   return (
     <div>
       <h1 className="text-3xl font-bold text-gray-800 mb-8">ภาพรวมระบบ (Dashboard)</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         {/* Card 1 */}
         <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100 flex items-center">
           <div className="p-4 rounded-full bg-blue-100 text-blue-600 mr-4">
@@ -61,6 +93,55 @@ export default async function AdminDashboard() {
             <p className="text-sm font-medium text-gray-500">บุคลากรทั้งหมด</p>
             <p className="text-2xl font-bold text-gray-900">{personnelTotal}</p>
           </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">รายการครุภัณฑ์ล่าสุด</h2>
+          <DashboardFilters />
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รหัสครุภัณฑ์</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภท/ยี่ห้อ</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานที่</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {equipments.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">ไม่พบข้อมูลครุภัณฑ์</td>
+                </tr>
+              ) : (
+                equipments.map((eq) => (
+                  <tr key={eq.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">{eq.asset_code}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <div>{eq.category}</div>
+                      <div className="text-gray-500 text-xs">{eq.brand || '-'} {eq.model || ''}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{eq.location}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${eq.status === 'ใช้งานได้' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {eq.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <Link href={`/admin/equipment/${eq.id}/edit`} className="text-indigo-600 hover:text-indigo-900 inline-flex items-center">
+                        <Edit size={16} className="mr-1"/> แก้ไข
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

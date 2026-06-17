@@ -2,6 +2,7 @@ import { logout } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { LayoutDashboard, MonitorSmartphone, LogOut, Users } from 'lucide-react';
+import Image from 'next/image';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   async function handleLogout() {
@@ -14,9 +15,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       {/* Sidebar */}
       <aside className="w-full md:w-64 bg-[#1e3a8a] text-white flex flex-col">
-        <div className="p-6 border-b border-blue-800">
-          <h1 className="text-xl font-bold tracking-wider">SMKCC ASSET</h1>
-          <p className="text-blue-300 text-xs mt-1">Admin Dashboard</p>
+        <div className="p-6 border-b border-blue-800 flex items-center space-x-3">
+          <Image src="/logo.png" alt="Logo" width={40} height={40} className="bg-white rounded-full p-1" />
+          <div>
+            <h1 className="text-xl font-bold tracking-wider">SMKCC ASSET</h1>
+            <p className="text-blue-300 text-xs mt-1">Admin Dashboard</p>
+          </div>
         </div>
         
         <nav className="flex-1 p-4 space-y-2">
@@ -45,8 +49,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-6 md:p-10">
-        {children}
+      <main className="flex-1 p-6 md:p-10 flex flex-col">
+        <div className="flex-1">
+          {children}
+        </div>
+        
+        {/* Footer Credit */}
+        <footer className="mt-auto pt-8 pb-4 text-center border-t border-gray-200">
+          <p className="text-sm text-gray-500 font-medium">
+            พัฒนาระบบโดย งานเทคโนโลยีสารสนเทศ วิทยาลัยชุมชนสมุทรสาคร
+          </p>
+        </footer>
       </main>
     </div>
   );
