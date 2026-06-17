@@ -14,6 +14,9 @@ export default async function EditPersonnelPage({ params }: { params: Promise<{ 
   
   const p = result.rows[0];
 
+  const deptRes = await pool.query('SELECT * FROM departments ORDER BY dept_name ASC');
+  const departments = deptRes.rows;
+
   async function handleUpdate(formData: FormData) {
     'use server';
     const res = await updatePersonnel(id, formData);
@@ -35,8 +38,17 @@ export default async function EditPersonnelPage({ params }: { params: Promise<{ 
         <form action={handleUpdate} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">รหัสพนักงาน *</label>
-              <input type="text" name="employee_code" defaultValue={p.employee_code} required className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100" readOnly />
+              <label className="block text-sm font-medium text-gray-700 mb-1">รหัสพนักงาน</label>
+              <input type="text" name="employee_code" defaultValue={p.employee_code} disabled className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">สังกัด (Department) *</label>
+              <select name="department_id" defaultValue={p.department_id || ""} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <option value="">-- เลือกสังกัด --</option>
+                {departments.map(d => (
+                  <option key={d.id} value={d.id}>{d.dept_name} ({d.dept_code})</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">คำนำหน้าชื่อ</label>

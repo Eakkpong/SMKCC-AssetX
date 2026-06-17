@@ -3,7 +3,12 @@ import Link from 'next/link';
 import { PlusCircle, Search, Edit } from 'lucide-react';
 
 export default async function AdminPersonnelPage() {
-  const result = await pool.query('SELECT * FROM personnel ORDER BY updated_at DESC LIMIT 100');
+  const result = await pool.query(`
+    SELECT p.*, d.dept_name 
+    FROM personnel p 
+    LEFT JOIN departments d ON p.department_id = d.id 
+    ORDER BY p.updated_at DESC LIMIT 100
+  `);
   const personnel = result.rows;
 
   return (
@@ -36,7 +41,7 @@ export default async function AdminPersonnelPage() {
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รหัสพนักงาน</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ - นามสกุล</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ตำแหน่ง</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ตำแหน่ง (สังกัด)</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
               </tr>
@@ -48,7 +53,10 @@ export default async function AdminPersonnelPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {p.title}{p.first_name} {p.last_name}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{p.position}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div>{p.position}</div>
+                    <div className="text-xs text-gray-400">{p.dept_name || 'ไม่ระบุสังกัด'}</div>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${p.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
                       {p.status}
