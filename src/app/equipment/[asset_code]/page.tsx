@@ -1,9 +1,12 @@
 import pool from '@/lib/db';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 
-export default async function EquipmentPage({ params }: { params: Promise<{ asset_code: string }> }) {
+export default async function EquipmentPage({ params, searchParams }: { params: Promise<{ asset_code: string }>, searchParams?: Promise<{ reported?: string }> }) {
   const { asset_code } = await params;
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const reported = resolvedSearchParams.reported === 'true';
   
   // Fetch equipment details
   const result = await pool.query(
@@ -23,6 +26,13 @@ export default async function EquipmentPage({ params }: { params: Promise<{ asse
   return (
     <div className="min-h-screen bg-[#f4f6f8] py-8 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-xl mx-auto bg-white border border-gray-300 shadow-md">
+        
+        {reported && (
+          <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 mt-4 mx-6 rounded-md shadow-sm">
+            <p className="font-bold">แจ้งซ่อมสำเร็จ!</p>
+            <p className="text-sm">ระบบได้รับข้อมูลการแจ้งซ่อมของคุณแล้ว ฝ่ายไอทีจะรีบดำเนินการตรวจสอบครับ</p>
+          </div>
+        )}
         
         {/* Government Header */}
         <div className="flex flex-col items-center pt-10 pb-6 border-b-[3px] border-[#1e3a8a]">
@@ -72,6 +82,22 @@ export default async function EquipmentPage({ params }: { params: Promise<{ asse
             </div>
           </div>
 
+        </div>
+
+        {/* Action Buttons */}
+        <div className="px-6 sm:px-10 pb-8">
+          {eq.status === 'ใช้งานได้' ? (
+            <Link 
+              href={`/equipment/${eq.asset_code}/repair`}
+              className="block w-full bg-red-600 hover:bg-red-700 text-white text-center font-bold py-3 px-4 rounded-md transition duration-200 shadow-sm"
+            >
+              แจ้งซ่อม / แจ้งปัญหาการใช้งาน
+            </Link>
+          ) : (
+            <div className="w-full bg-gray-200 text-gray-500 text-center font-bold py-3 px-4 rounded-md">
+              อุปกรณ์นี้อยู่ในสถานะ {eq.status}
+            </div>
+          )}
         </div>
 
         {/* Official Footer */}

@@ -1,7 +1,7 @@
 import { logout } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { LayoutDashboard, MonitorSmartphone, LogOut, Users } from 'lucide-react';
+import { LayoutDashboard, MonitorSmartphone, LogOut, Users, Wrench } from 'lucide-react';
 import Image from 'next/image';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -35,6 +35,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/personnel" className="flex items-center space-x-3 px-4 py-3 rounded-md hover:bg-blue-800 transition">
             <Users size={20} />
             <span>จัดการบุคลากร</span>
+          </Link>
+          <Link href="/admin/repairs" className="flex items-center space-x-3 px-4 py-3 rounded-md hover:bg-blue-800 transition">
+            <Wrench size={20} />
+            <span>รายการแจ้งซ่อม</span>
           </Link>
         </nav>
 
