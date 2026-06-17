@@ -4,17 +4,19 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
 
-export default function DashboardFilters() {
+export default function DashboardFilters({ departments }: { departments: any[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [status, setStatus] = useState(searchParams.get('status') || '');
+  const [departmentId, setDepartmentId] = useState(searchParams.get('dept') || '');
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     const params = new URLSearchParams();
     if (query) params.set('q', query);
     if (status) params.set('status', status);
+    if (departmentId) params.set('dept', departmentId);
     
     router.push(`/admin?${params.toString()}`);
   }
@@ -22,6 +24,7 @@ export default function DashboardFilters() {
   function handleClear() {
     setQuery('');
     setStatus('');
+    setDepartmentId('');
     router.push('/admin');
   }
 
@@ -41,6 +44,17 @@ export default function DashboardFilters() {
       </div>
       
       <select 
+        value={departmentId} 
+        onChange={(e) => setDepartmentId(e.target.value)}
+        className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 sm:text-sm"
+      >
+        <option value="">ทุกสังกัด</option>
+        {departments.map((d: any) => (
+          <option key={d.id} value={d.id}>{d.dept_code} - {d.dept_name}</option>
+        ))}
+      </select>
+
+      <select 
         value={status} 
         onChange={(e) => setStatus(e.target.value)}
         className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 sm:text-sm"
@@ -55,7 +69,7 @@ export default function DashboardFilters() {
       <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 font-medium">
         ค้นหา
       </button>
-      {(query || status) && (
+      {(query || status || departmentId) && (
         <button type="button" onClick={handleClear} className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 font-medium">
           ล้างตัวกรอง
         </button>
