@@ -2,7 +2,6 @@ import pool from '@/lib/db';
 import Link from 'next/link';
 import { Edit, Filter } from 'lucide-react';
 import ExportRepairPdfButton from '@/components/ExportRepairPdfButton';
-import ExportMockRepairPdfButton from '@/components/ExportMockRepairPdfButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,10 +38,7 @@ export default async function AdminRepairsPage({ searchParams }: { searchParams:
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">รายการแจ้งซ่อม / ปัญหาการใช้งาน</h1>
-        <div className="flex gap-2">
-          <ExportMockRepairPdfButton />
-          <ExportRepairPdfButton data={repairs} month={month} />
-        </div>
+        <ExportRepairPdfButton data={repairs} month={month} />
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
