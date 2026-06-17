@@ -7,6 +7,7 @@ export async function submitRepairRequest(formData: FormData) {
   const equipment_id = formData.get('equipment_id')?.toString();
   const asset_code = formData.get('asset_code')?.toString();
   const issue_description = formData.get('issue_description')?.toString();
+  const reporter_name = formData.get('reporter_name')?.toString() || '';
 
   if (!equipment_id || !issue_description || !asset_code) {
     throw new Error('Missing required fields');
@@ -19,9 +20,9 @@ export async function submitRepairRequest(formData: FormData) {
 
     // 1. Insert into repair_requests
     await client.query(
-      `INSERT INTO repair_requests (equipment_id, issue_description, status) 
-       VALUES ($1, $2, 'รอดำเนินการ')`,
-      [equipment_id, issue_description]
+      `INSERT INTO repair_requests (equipment_id, issue_description, reporter_name, status) 
+       VALUES ($1, $2, $3, 'รอดำเนินการ')`,
+      [equipment_id, issue_description, reporter_name]
     );
 
     // 2. Update equipments status to 'ส่งซ่อม'

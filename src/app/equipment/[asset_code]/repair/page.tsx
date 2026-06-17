@@ -8,9 +8,12 @@ import { submitRepairRequest } from './actions';
 export default async function RepairRequestPage({ params }: { params: Promise<{ asset_code: string }> }) {
   const { asset_code } = await params;
 
-  // Fetch equipment details
+  // Fetch equipment details with owner info
   const result = await pool.query(
-    `SELECT * FROM equipments WHERE asset_code = $1`, 
+    `SELECT e.*, p.first_name, p.last_name, p.title 
+     FROM equipments e
+     LEFT JOIN personnel p ON e.owner_id = p.id
+     WHERE e.asset_code = $1`, 
     [asset_code]
   );
 
@@ -41,6 +44,34 @@ export default async function RepairRequestPage({ params }: { params: Promise<{ 
           <form action={submitRepairRequest} className="space-y-6">
             <input type="hidden" name="equipment_id" value={eq.id} />
             <input type="hidden" name="asset_code" value={eq.asset_code} />
+
+            {eq.first_name ? (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">ชื่อผู้แจ้ง</label>
+                <input 
+                  type="text" 
+                  name="reporter_name" 
+                  value={`${eq.title || ''}${eq.first_name} ${eq.last_name}`} 
+                  readOnly 
+                  className="w-full px-3 py-2 border border-gray-200 bg-gray-100 rounded-md text-gray-600 focus:outline-none cursor-not-allowed" 
+                />
+              </div>
+            ) : (
+              <div>
+                <label htmlFor="reporter_name" className="block text-sm font-medium text-gray-700 mb-2">
+                  ชื่อผู้แจ้ง <span className="text-red-500">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  id="reporter_name" 
+                  name="reporter_name" 
+                  required 
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                  placeholder="เช่น สมหมาย ใจดี" 
+                />
+                <p className="text-xs text-gray-500 mt-1">เครื่องส่วนกลาง กรุณาระบุชื่อผู้แจ้งซ่อม</p>
+              </div>
+            )}
 
             <div>
               <label htmlFor="issue_description" className="block text-sm font-medium text-gray-700 mb-2">

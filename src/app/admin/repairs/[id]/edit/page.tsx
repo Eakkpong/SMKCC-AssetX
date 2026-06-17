@@ -66,6 +66,13 @@ export default async function AdminEditRepairPage({ params }: { params: Promise<
           </div>
 
           <div>
+            <p className="text-sm text-gray-500 mb-1">ชื่อผู้แจ้ง</p>
+            <p className="font-semibold text-gray-900">
+              {r.reporter_name || '-'}
+            </p>
+          </div>
+
+          <div>
             <p className="text-sm text-gray-500 mb-1">อาการเสียเบื้องต้น (จากผู้แจ้ง)</p>
             <div className="p-3 bg-red-50 border border-red-100 rounded-md text-red-900 whitespace-pre-wrap">
               {r.issue_description}
