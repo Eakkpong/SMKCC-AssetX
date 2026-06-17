@@ -1,7 +1,6 @@
 import pool from '@/lib/db';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { Monitor, MapPin, User, ShieldCheck } from 'lucide-react';
 
 export default async function EquipmentPage({ params }: { params: Promise<{ asset_code: string }> }) {
   const { asset_code } = await params;
@@ -22,50 +21,62 @@ export default async function EquipmentPage({ params }: { params: Promise<{ asse
   const eq = result.rows[0];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div className="bg-white px-6 py-6 text-center border-b border-gray-100 flex flex-col items-center justify-center">
-          <Image src="/logo.png" alt="วิทยาลัยชุมชนสมุทรสาคร" width={120} height={120} className="object-contain" />
-        </div>
-        <div className="bg-blue-600 px-6 py-6 text-center">
-          <Monitor className="mx-auto h-12 w-12 text-white mb-4" />
-          <h1 className="text-2xl font-bold text-white">{eq.category || 'ไม่ระบุประเภทอุปกรณ์'}</h1>
-          <p className="text-blue-100 mt-2">รหัสครุภัณฑ์: {eq.asset_code}</p>
+    <div className="min-h-screen bg-[#f4f6f8] py-8 px-4 sm:px-6 lg:px-8 font-sans">
+      <div className="max-w-xl mx-auto bg-white border border-gray-300 shadow-md">
+        
+        {/* Government Header */}
+        <div className="flex flex-col items-center pt-10 pb-6 border-b-[3px] border-[#1e3a8a]">
+          <Image src="/logo.png" alt="วิทยาลัยชุมชนสมุทรสาคร" width={100} height={100} className="object-contain mb-4" />
+          <h1 className="text-2xl font-bold text-[#1e3a8a] tracking-wide text-center">วิทยาลัยชุมชนสมุทรสาคร</h1>
+          <h2 className="text-lg font-semibold text-gray-700 mt-1">รายละเอียดทะเบียนครุภัณฑ์</h2>
         </div>
         
-        <div className="px-6 py-6 space-y-6">
-          <div className="flex items-start">
-            <MapPin className="h-6 w-6 text-gray-400 mr-3 mt-1" />
-            <div>
-              <p className="text-sm font-medium text-gray-500">สถานที่ตั้ง (Location)</p>
-              <p className="text-lg text-gray-900">{eq.location || 'ไม่ระบุสถานที่ตั้ง'}</p>
+        {/* Content Section */}
+        <div className="px-6 sm:px-10 py-8 space-y-5">
+          
+          <div className="flex flex-col sm:flex-row sm:items-center border-b border-gray-200 pb-4">
+            <div className="w-full sm:w-1/3 text-sm font-bold text-gray-600 mb-1 sm:mb-0">รหัสครุภัณฑ์</div>
+            <div className="w-full sm:w-2/3 text-lg font-bold text-[#1e3a8a]">{eq.asset_code}</div>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row sm:items-center border-b border-gray-200 pb-4">
+            <div className="w-full sm:w-1/3 text-sm font-bold text-gray-600 mb-1 sm:mb-0">ประเภท</div>
+            <div className="w-full sm:w-2/3 text-base text-gray-800">{eq.category || '-'}</div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center border-b border-gray-200 pb-4">
+            <div className="w-full sm:w-1/3 text-sm font-bold text-gray-600 mb-1 sm:mb-0">ยี่ห้อ / รุ่น</div>
+            <div className="w-full sm:w-2/3 text-base text-gray-800">
+              {eq.brand || '-'} {eq.model ? ` / ${eq.model}` : ''}
             </div>
           </div>
 
-          <div className="flex items-start">
-            <User className="h-6 w-6 text-gray-400 mr-3 mt-1" />
-            <div>
-              <p className="text-sm font-medium text-gray-500">ผู้ครอบครอง (Owner)</p>
-              <p className="text-lg text-gray-900">
-                {eq.owner_id ? `${eq.first_name || ''} ${eq.last_name || ''}`.trim() : 'ส่วนกลาง (ไม่มีผู้ครอบครอง)'}
-              </p>
+          <div className="flex flex-col sm:flex-row sm:items-center border-b border-gray-200 pb-4">
+            <div className="w-full sm:w-1/3 text-sm font-bold text-gray-600 mb-1 sm:mb-0">ผู้ครอบครอง</div>
+            <div className="w-full sm:w-2/3 text-base text-gray-800">
+              {eq.owner_id ? `${eq.first_name || ''} ${eq.last_name || ''}`.trim() : 'ส่วนกลาง'}
             </div>
           </div>
 
-          <div className="flex items-start">
-            <ShieldCheck className="h-6 w-6 text-gray-400 mr-3 mt-1" />
-            <div>
-              <p className="text-sm font-medium text-gray-500">สถานะอุปกรณ์ (Status)</p>
-              <span className="inline-flex items-center px-3 py-1 mt-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                {eq.status || 'ไม่ระบุสถานะ'}
+          <div className="flex flex-col sm:flex-row sm:items-center border-b border-gray-200 pb-4">
+            <div className="w-full sm:w-1/3 text-sm font-bold text-gray-600 mb-1 sm:mb-0">สถานที่ตั้ง</div>
+            <div className="w-full sm:w-2/3 text-base text-gray-800">{eq.location || '-'}</div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center pb-2">
+            <div className="w-full sm:w-1/3 text-sm font-bold text-gray-600 mb-1 sm:mb-0">สถานะ</div>
+            <div className="w-full sm:w-2/3 text-base text-gray-800">
+              <span className={`inline-block px-3 py-1 text-sm font-semibold border ${eq.status === 'ใช้งานได้' ? 'border-green-600 text-green-700 bg-green-50' : 'border-gray-500 text-gray-700 bg-gray-50'}`}>
+                {eq.status || '-'}
               </span>
             </div>
           </div>
+
         </div>
 
-        {/* Footer Section Inside Card */}
-        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 text-center">
-          <p className="text-xs text-gray-400 font-medium tracking-wide">
+        {/* Official Footer */}
+        <div className="bg-[#1e3a8a] px-6 py-4 text-center">
+          <p className="text-sm text-white font-medium tracking-wide">
             งานเทคโนโลยีสารสนเทศ วิทยาลัยชุมชนสมุทรสาคร
           </p>
         </div>
