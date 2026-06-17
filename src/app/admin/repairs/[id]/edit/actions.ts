@@ -84,20 +84,25 @@ export async function updateRepairStatus(formData: FormData) {
           else if (status === 'กำลังซ่อม') statusText = '🔧 กำลังซ่อม';
           else if (status === 'ส่งซ่อมภายนอก') statusText = '🚚 ส่งซ่อมภายนอก';
 
+          let adminNotesHtml = '';
+          if (admin_notes) {
+            adminNotesHtml = `<li><b>หมายเหตุจากช่าง:</b> ${admin_notes}</li>`;
+          }
+
           const mailOptions = {
-            from: `"SMKCC IT Support" <\${smtpUser}>`,
+            from: `"SMKCC IT Support" <${smtpUser}>`,
             to: data.email,
-            subject: `อัปเดตสถานะแจ้งซ่อม: \${data.asset_code} (\${status})`,
+            subject: `อัปเดตสถานะแจ้งซ่อม: ${data.asset_code} (${status})`,
             html: `
               <div style="font-family: sans-serif; padding: 20px; background-color: #f4f6f8; border-radius: 8px;">
                 <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                  <h3 style="color: #1e3a8a;">สวัสดีคุณ \${data.first_name},</h3>
+                  <h3 style="color: #1e3a8a;">สวัสดีคุณ ${data.first_name},</h3>
                   <p>ระบบขอแจ้งอัปเดตสถานะการแจ้งซ่อมครุภัณฑ์ของคุณ ดังนี้:</p>
                   <ul style="line-height: 1.6;">
-                    <li><b>รหัสครุภัณฑ์:</b> \${data.asset_code}</li>
-                    <li><b>อาการเสีย:</b> \${data.issue_description}</li>
-                    <li><b>สถานะล่าสุด:</b> <strong style="color: #2563eb;">\${statusText}</strong></li>
-                    \${admin_notes ? `<li><b>หมายเหตุจากช่าง:</b> \${admin_notes}</li>` : ''}
+                    <li><b>รหัสครุภัณฑ์:</b> ${data.asset_code}</li>
+                    <li><b>อาการเสีย:</b> ${data.issue_description}</li>
+                    <li><b>สถานะล่าสุด:</b> <strong style="color: #2563eb;">${statusText}</strong></li>
+                    ${adminNotesHtml}
                   </ul>
                   <br/>
                   <p style="color: #64748b; font-size: 14px;">ขอบคุณที่ใช้บริการระบบ SMKCC AssetX</p>
