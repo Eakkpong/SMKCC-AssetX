@@ -4,6 +4,7 @@ import { Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { THSarabunFont } from '@/lib/fonts/THSarabun';
+import { logoBase64 } from '@/lib/logoBase64';
 
 export default function ExportPdfButton({ data }: { data: any[] }) {
   function handleExport() {
@@ -14,12 +15,14 @@ export default function ExportPdfButton({ data }: { data: any[] }) {
     doc.addFont('THSarabun.ttf', 'THSarabun', 'normal');
     doc.setFont('THSarabun');
 
-    // Header
-    doc.setFontSize(18);
-    doc.text('รายงานครุภัณฑ์คอมพิวเตอร์ วิทยาลัยชุมชนสมุทรสาคร', 14, 15);
+    // Logo
+    doc.addImage(logoBase64, 'PNG', 14, 8, 15, 15);
+
+    // Header Text
+    doc.setFontSize(22);
+    doc.text('รายงานครุภัณฑ์คอมพิวเตอร์ วิทยาลัยชุมชนสมุทรสาคร', 32, 19);
 
     // Prepare table data
-    // ลำดับที่ | รหัสครุภัณฑ์ | ประเภท/ยี่ห้อ | สถานที่ตั้ง | สังกัด | ผู้ครอบครอง | สถานะ
     const head = [['ลำดับที่', 'รหัสครุภัณฑ์', 'ประเภท/ยี่ห้อ', 'สถานที่ตั้ง', 'สังกัด', 'ผู้ครอบครอง', 'สถานะ']];
     const body = data.map((eq, index) => [
       (index + 1).toString(),
@@ -31,23 +34,37 @@ export default function ExportPdfButton({ data }: { data: any[] }) {
       eq.status || '-'
     ]);
 
+    const printDate = `วันที่พิมพ์: ${new Date().toLocaleDateString('th-TH')}`;
+
     autoTable(doc, {
       head: head,
       body: body,
-      startY: 20,
+      startY: 28,
       styles: {
         font: 'THSarabun',
-        fontSize: 14,
+        fontSize: 11,
         cellPadding: 2,
       },
       headStyles: {
         fillColor: [30, 58, 138], // #1e3a8a
         textColor: 255,
         fontStyle: 'bold',
+        font: 'THSarabun',
       },
       alternateRowStyles: {
-        fillColor: [240, 240, 240],
+        fillColor: [245, 245, 245],
       },
+      margin: { top: 25 },
+      didDrawPage: function (data) {
+        // Footer (Print Date)
+        doc.setFontSize(11);
+        doc.setFont('THSarabun');
+        const pageWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
+        
+        // Align text to right
+        doc.text(printDate, pageWidth - 14, pageHeight - 10, { align: 'right' });
+      }
     });
 
     // Save
