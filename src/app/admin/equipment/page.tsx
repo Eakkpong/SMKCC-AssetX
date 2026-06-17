@@ -1,6 +1,6 @@
 import pool from '@/lib/db';
 import Link from 'next/link';
-import { PlusCircle, Search, Edit } from 'lucide-react';
+import { PlusCircle, Search, Edit, Download } from 'lucide-react';
 import ExportStickerGuidePdfButton from '@/components/ExportStickerGuidePdfButton';
 
 export default async function AdminEquipmentPage() {
@@ -18,6 +18,10 @@ export default async function AdminEquipmentPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold text-gray-800">จัดการครุภัณฑ์</h1>
         <div className="flex space-x-3">
+          <a href="/api/export/inventory" className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition" download>
+            <Download size={20} />
+            <span>ดาวน์โหลดทะเบียนคุม (Excel)</span>
+          </a>
           <ExportStickerGuidePdfButton data={equipments} />
           <Link href="/admin/equipment/new" className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition">
             <PlusCircle size={20} />
