@@ -106,7 +106,7 @@ export default function ExportRepairPdfButton({ data, month }: { data: any[], mo
         alternateRowStyles: { fillColor: [250, 245, 255] },
         willDrawCell: function(data) {
           if (data.row.index === body2.length - 1) {
-            doc.setFont('THSarabun', 'bold');
+            doc.setFont('THSarabun');
             if (data.column.index === 5 || data.column.index === 6) {
               doc.setTextColor(220, 38, 38); // red-600
             }
