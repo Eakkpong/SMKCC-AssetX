@@ -9,6 +9,8 @@ export async function updateRepairStatus(formData: FormData) {
   const equipment_id = formData.get('equipment_id')?.toString();
   const status = formData.get('status')?.toString();
   const admin_notes = formData.get('admin_notes')?.toString();
+  const external_shop = formData.get('external_shop')?.toString() || null;
+  const repair_cost = formData.get('repair_cost')?.toString() || null;
 
   if (!repair_id || !equipment_id || !status) {
     throw new Error('Missing required fields');
@@ -22,16 +24,16 @@ export async function updateRepairStatus(formData: FormData) {
     // 1. Update repair_requests
     let updateQuery = `
       UPDATE repair_requests 
-      SET status = $1, admin_notes = $2 
+      SET status = $1, admin_notes = $2, external_shop = $3, repair_cost = $4 
     `;
-    let queryParams: any[] = [status, admin_notes];
+    let queryParams: any[] = [status, admin_notes, external_shop, repair_cost];
 
     // If status is 'เสร็จสิ้น', set resolved_at
     if (status === 'เสร็จสิ้น') {
       updateQuery += `, resolved_at = CURRENT_TIMESTAMP `;
     }
 
-    updateQuery += ` WHERE id = $3`;
+    updateQuery += ` WHERE id = $5`;
     queryParams.push(repair_id);
 
     await client.query(updateQuery, queryParams);
@@ -42,7 +44,7 @@ export async function updateRepairStatus(formData: FormData) {
         `UPDATE equipments SET status = 'ใช้งานได้', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
         [equipment_id]
       );
-    } else if (status === 'กำลังซ่อม' || status === 'รอดำเนินการ') {
+    } else if (status === 'กำลังซ่อม' || status === 'รอดำเนินการ' || status === 'ส่งซ่อมภายนอก') {
       await client.query(
         `UPDATE equipments SET status = 'ส่งซ่อม', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
         [equipment_id]

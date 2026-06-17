@@ -71,7 +71,7 @@ export default async function AdminRepairsPage({ searchParams }: { searchParams:
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อผู้แจ้ง</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รหัสครุภัณฑ์</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">อาการเสีย</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เวลาที่ซ่อมเสร็จ</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ค่าใช้จ่าย</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
               </tr>
@@ -85,6 +85,7 @@ export default async function AdminRepairsPage({ searchParams }: { searchParams:
                 repairs.map((r) => {
                   let statusBadge = 'bg-yellow-100 text-yellow-800'; // รอดำเนินการ
                   if (r.status === 'กำลังซ่อม') statusBadge = 'bg-blue-100 text-blue-800';
+                  if (r.status === 'ส่งซ่อมภายนอก') statusBadge = 'bg-purple-100 text-purple-800';
                   if (r.status === 'เสร็จสิ้น') statusBadge = 'bg-green-100 text-green-800';
                   if (r.status === 'ยกเลิก') statusBadge = 'bg-red-100 text-red-800';
 
@@ -102,8 +103,8 @@ export default async function AdminRepairsPage({ searchParams }: { searchParams:
                       <td className="px-4 py-4 text-sm text-gray-900 max-w-xs truncate">
                         {r.issue_description}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {r.resolved_at ? new Date(r.resolved_at).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 font-medium text-red-600">
+                        {r.repair_cost ? `฿${Number(r.repair_cost).toLocaleString()}` : '-'}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusBadge}`}>
