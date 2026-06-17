@@ -2,6 +2,8 @@ import pool from '@/lib/db';
 import Link from 'next/link';
 import { Edit } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminRepairsPage() {
   const result = await pool.query(`
     SELECT r.*, e.asset_code, e.category, e.brand, e.model, e.location 

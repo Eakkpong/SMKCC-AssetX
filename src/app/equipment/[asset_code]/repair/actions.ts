@@ -24,9 +24,9 @@ export async function submitRepairRequest(formData: FormData) {
       [equipment_id, issue_description]
     );
 
-    // 2. Update equipments status to 'ส่งซ่อม / ชำรุด'
+    // 2. Update equipments status to 'ส่งซ่อม'
     await client.query(
-      `UPDATE equipments SET status = 'ส่งซ่อม / ชำรุด', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
+      `UPDATE equipments SET status = 'ส่งซ่อม', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
       [equipment_id]
     );
 

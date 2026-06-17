@@ -44,7 +44,7 @@ export async function updateRepairStatus(formData: FormData) {
       );
     } else if (status === 'กำลังซ่อม' || status === 'รอดำเนินการ') {
       await client.query(
-        `UPDATE equipments SET status = 'ส่งซ่อม / ชำรุด', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
+        `UPDATE equipments SET status = 'ส่งซ่อม', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
         [equipment_id]
       );
     }
