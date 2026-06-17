@@ -1,7 +1,7 @@
 import { logout } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { LayoutDashboard, MonitorSmartphone, LogOut } from 'lucide-react';
+import { LayoutDashboard, MonitorSmartphone, LogOut, Users } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   async function handleLogout() {
@@ -27,6 +27,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/equipment" className="flex items-center space-x-3 px-4 py-3 rounded-md hover:bg-blue-800 transition">
             <MonitorSmartphone size={20} />
             <span>จัดการครุภัณฑ์</span>
+          </Link>
+          <Link href="/admin/personnel" className="flex items-center space-x-3 px-4 py-3 rounded-md hover:bg-blue-800 transition">
+            <Users size={20} />
+            <span>จัดการบุคลากร</span>
           </Link>
         </nav>
 

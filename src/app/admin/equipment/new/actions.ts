@@ -9,19 +9,19 @@ export async function createEquipment(formData: FormData) {
   const brand = formData.get('brand') as string;
   const model = formData.get('model') as string;
   const location = formData.get('location') as string;
+  const owner_id = formData.get('owner_id') ? parseInt(formData.get('owner_id') as string) : null;
   const status = formData.get('status') as string;
 
   try {
-    // Check if asset code already exists
     const existing = await pool.query('SELECT id FROM equipments WHERE asset_code = $1', [asset_code]);
     if (existing.rows.length > 0) {
       return { success: false, error: 'รหัสครุภัณฑ์นี้มีในระบบแล้ว' };
     }
 
     await pool.query(
-      `INSERT INTO equipments (asset_code, category, brand, model, location, status) 
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [asset_code, category, brand, model, location, status]
+      `INSERT INTO equipments (asset_code, category, brand, model, location, owner_id, status) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [asset_code, category, brand, model, location, owner_id, status]
     );
 
     revalidatePath('/admin/equipment');

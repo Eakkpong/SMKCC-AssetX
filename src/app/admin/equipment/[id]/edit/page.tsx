@@ -14,6 +14,9 @@ export default async function EditEquipmentPage({ params }: { params: Promise<{ 
   
   const eq = result.rows[0];
 
+  const personnelResult = await pool.query('SELECT * FROM personnel ORDER BY first_name ASC');
+  const personnel = personnelResult.rows;
+
   async function handleUpdate(formData: FormData) {
     'use server';
     const result = await updateEquipment(id, formData);
@@ -54,6 +57,17 @@ export default async function EditEquipmentPage({ params }: { params: Promise<{ 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">สถานที่ตั้ง *</label>
               <input type="text" name="location" defaultValue={eq.location} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">ผู้ครอบครอง (Owner)</label>
+              <select name="owner_id" defaultValue={eq.owner_id || ""} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <option value="">-- ไม่ระบุ (ส่วนกลาง) --</option>
+                {personnel.map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.title}{p.first_name} {p.last_name} ({p.position})
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">สถานะ</label>
