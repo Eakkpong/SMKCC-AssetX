@@ -1,19 +1,29 @@
 import pool from '@/lib/db';
 import Link from 'next/link';
-import { PlusCircle, Search, Edit, QrCode } from 'lucide-react';
+import { PlusCircle, Search, Edit } from 'lucide-react';
+import ExportQrPdfButton from '@/components/ExportQrPdfButton';
 
 export default async function AdminEquipmentPage() {
-  const result = await pool.query('SELECT * FROM equipments ORDER BY updated_at DESC LIMIT 100');
+  const result = await pool.query(`
+    SELECT e.*, p.first_name, p.last_name, p.title, d.dept_name 
+    FROM equipments e
+    LEFT JOIN personnel p ON e.owner_id = p.id
+    LEFT JOIN departments d ON p.department_id = d.id
+    ORDER BY e.updated_at DESC LIMIT 500
+  `);
   const equipments = result.rows;
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold text-gray-800">จัดการครุภัณฑ์</h1>
-        <Link href="/admin/equipment/new" className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition">
-          <PlusCircle size={20} />
-          <span>เพิ่มครุภัณฑ์ใหม่</span>
-        </Link>
+        <div className="flex space-x-3">
+          <ExportQrPdfButton data={equipments} />
+          <Link href="/admin/equipment/new" className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition">
+            <PlusCircle size={20} />
+            <span>เพิ่มครุภัณฑ์ใหม่</span>
+          </Link>
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
