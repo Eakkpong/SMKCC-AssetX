@@ -42,13 +42,13 @@ export default function ExportPdfButton({ data }: { data: any[] }) {
       startY: 28,
       styles: {
         font: 'THSarabun',
-        fontSize: 11,
-        cellPadding: 2,
+        fontSize: 10,
+        cellPadding: 1.5,
       },
       headStyles: {
         fillColor: [30, 58, 138], // #1e3a8a
         textColor: 255,
-        fontStyle: 'bold',
+        fontStyle: 'normal',
         font: 'THSarabun',
       },
       alternateRowStyles: {
@@ -57,7 +57,7 @@ export default function ExportPdfButton({ data }: { data: any[] }) {
       margin: { top: 25 },
       didDrawPage: function (data) {
         // Footer (Print Date)
-        doc.setFontSize(11);
+        doc.setFontSize(10);
         doc.setFont('THSarabun');
         const pageWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
