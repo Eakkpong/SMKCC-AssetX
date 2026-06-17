@@ -8,7 +8,8 @@ export async function GET() {
     const client = await pool.connect();
     const { rows } = await client.query(`
       SELECT a.*, 
-             (SELECT count(*) FROM audit_items ai WHERE ai.audit_id = a.id) as scanned_count
+             (SELECT count(*) FROM audit_items ai WHERE ai.audit_id = a.id) as scanned_count,
+             (SELECT count(*) FROM equipments) as total_count
       FROM audits a
       ORDER BY a.created_at DESC
     `);

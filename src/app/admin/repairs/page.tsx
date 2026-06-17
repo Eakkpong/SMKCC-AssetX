@@ -38,7 +38,12 @@ export default async function AdminRepairsPage({ searchParams }: { searchParams:
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">รายการแจ้งซ่อม / ปัญหาการใช้งาน</h1>
-        <ExportRepairPdfButton data={repairs} month={month} />
+        <div className="flex space-x-2">
+          <a href="/api/export/satisfaction" className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium text-sm transition flex items-center shadow-sm">
+            <span>ออกรายงานความพึงพอใจ (Excel)</span>
+          </a>
+          <ExportRepairPdfButton data={repairs} month={month} />
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">

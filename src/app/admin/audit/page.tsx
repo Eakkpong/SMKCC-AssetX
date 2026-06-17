@@ -41,6 +41,20 @@ export default function AdminAuditPage() {
     }
   };
 
+  const handleEndAudit = async (id: number) => {
+    if (!confirm('ยืนยันการปิดรอบตรวจนับ? หลังจากปิดแล้วจะไม่สามารถแก้ไขผลการตรวจนับได้อีก')) return;
+    const res = await fetch(`/api/admin/audits/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'Completed' })
+    });
+    if (res.ok) {
+      fetchAudits();
+    } else {
+      alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
@@ -70,7 +84,7 @@ export default function AdminAuditPage() {
               </div>
               <div className="bg-gray-50 p-3 rounded border border-gray-100 flex justify-between items-center">
                 <span className="text-sm text-gray-500">รหัส PIN: <span className="font-bold text-gray-800 text-lg">{audit.pin_code}</span></span>
-                <span className="text-sm text-gray-500">สแกนแล้ว: <span className="font-bold text-blue-600">{audit.scanned_count}</span> ชิ้น</span>
+                <span className="text-sm text-gray-500">สแกนแล้ว: <span className="font-bold text-blue-600">{audit.scanned_count} / {audit.total_count}</span> ชิ้น</span>
               </div>
               
               <div className="pt-2 flex flex-col space-y-2">
@@ -82,6 +96,11 @@ export default function AdminAuditPage() {
                   <Download size={16} />
                   <span>โหลดทะเบียนคุม Excel ({audit.audit_year})</span>
                 </a>
+                {audit.status === 'Active' && (
+                  <button onClick={() => handleEndAudit(audit.id)} className="w-full mt-2 text-red-600 hover:text-red-700 text-sm font-semibold underline underline-offset-2">
+                    จบการตรวจนับ (ปิดรอบ)
+                  </button>
+                )}
               </div>
             </div>
           </div>
