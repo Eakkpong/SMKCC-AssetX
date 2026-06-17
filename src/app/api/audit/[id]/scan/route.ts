@@ -25,8 +25,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     // 3. Insert into audit_items (using ON CONFLICT DO NOTHING to prevent duplicates)
     await client.query(`
-      INSERT INTO audit_items (audit_id, equipment_id, scanned_by, status)
-      VALUES ($1, $2, $3, 'Found')
+      INSERT INTO audit_items (audit_id, equipment_id, scanned_by)
+      VALUES ($1, $2, $3)
       ON CONFLICT (audit_id, equipment_id) DO UPDATE SET scanned_by = EXCLUDED.scanned_by, scanned_at = CURRENT_TIMESTAMP
     `, [id, equipmentId, scanned_by]);
 
