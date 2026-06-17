@@ -23,7 +23,13 @@ export default function AuditScannerPage() {
 
   useEffect(() => {
     if (isAuthenticated && committeeName) {
-      const scanner = new Html5QrcodeScanner('reader', { fps: 10, qrbox: 250 }, false);
+      const scanner = new Html5QrcodeScanner('reader', { 
+        fps: 10, 
+        qrbox: 250,
+        videoConstraints: {
+          facingMode: "environment"
+        }
+      }, false);
       
       let isProcessing = false;
       scanner.render(async (decodedText) => {
