@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMKCC AssetX - Infographic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-8 flex justify-center items-center relative overflow-hidden">
+    
+    <!-- Decorative background elements -->
+    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/20 blur-[120px]"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-600/20 blur-[120px]"></div>
+
+    <div class="max-w-6xl w-full glass-card p-10 relative z-10 shadow-2xl">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">SMKCC AssetX</h1>
+            <p class="text-xl text-slate-400">ระบบบริหารจัดการครุภัณฑ์และแจ้งซ่อม วิทยาลัยชุมชนสมุทรสาคร</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            
+            <!-- Left: Features -->
+            <div>
+                <h2 class="text-2xl font-semibold mb-6 flex items-center border-b border-slate-700 pb-3">
+                    <i data-lucide="layers" class="mr-3 text-blue-400"></i>
+                    ฟังก์ชันการทำงานหลัก (Core Features)
+                </h2>
+                
+                <div class="space-y-4">
+                    <div class="flex p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-blue-500 transition-colors">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center">
+                                <i data-lucide="box" class="text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg text-white">ระบบจัดการครุภัณฑ์ (Asset Management)</h3>
+                            <p class="text-slate-400 text-sm mt-1">เพิ่ม แก้ไข ค้นหา และติดตามสถานะของครุภัณฑ์ พร้อมระบบหมวดหมู่และสถานที่ตั้ง</p>
+                        </div>
+                    </div>
+
+                    <div class="flex p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-purple-500 transition-colors">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center">
+                                <i data-lucide="qr-code" class="text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg text-white">ระบบ QR Code Tracking</h3>
+                            <p class="text-slate-400 text-sm mt-1">สร้างป้าย QR Code อัตโนมัติ เพื่อนำไปติดที่อุปกรณ์ สแกนเพื่อดูข้อมูลหรือแจ้งซ่อมทันที</p>
+                        </div>
+                    </div>
+
+                    <div class="flex p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-blue-500 transition-colors">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center">
+                                <i data-lucide="wrench" class="text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg text-white">ระบบแจ้งซ่อม (Helpdesk & Repair)</h3>
+                            <p class="text-slate-400 text-sm mt-1">แจ้งปัญหาการใช้งาน แบ่งสถานะเป็น รอซ่อม, กำลังซ่อม, ซ่อมเสร็จ และส่งซ่อมภายนอก</p>
+                        </div>
+                    </div>
+
+                    <div class="flex p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-purple-500 transition-colors">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center">
+                                <i data-lucide="file-text" class="text-white"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-lg text-white">ระบบรายงานผล (PDF Reporting)</h3>
+                            <p class="text-slate-400 text-sm mt-1">สรุปข้อมูลครุภัณฑ์และรายการแจ้งซ่อมเป็นไฟล์ PDF พร้อมคำนวณค่าใช้จ่ายในการซ่อม</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Architecture -->
+            <div>
+                <h2 class="text-2xl font-semibold mb-6 flex items-center border-b border-slate-700 pb-3">
+                    <i data-lucide="cpu" class="mr-3 text-purple-400"></i>
+                    สถาปัตยกรรมระบบ (Architecture)
+                </h2>
+
+                <div class="relative bg-slate-800/30 p-6 rounded-xl border border-slate-700">
+                    
+                    <!-- Diagram Flow -->
+                    <div class="flex flex-col items-center space-y-6">
+                        
+                        <!-- Client Layer -->
+                        <div class="w-full">
+                            <div class="text-xs text-slate-500 mb-2 uppercase tracking-wider font-semibold">1. Client / Frontend</div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-slate-800 border border-blue-500/30 p-3 rounded-lg text-center shadow-lg">
+                                    <i data-lucide="monitor" class="mx-auto mb-2 text-blue-400"></i>
+                                    <div class="font-semibold text-sm">Next.js 14</div>
+                                    <div class="text-xs text-slate-400">App Router & React</div>
+                                </div>
+                                <div class="bg-slate-800 border border-purple-500/30 p-3 rounded-lg text-center shadow-lg">
+                                    <i data-lucide="palette" class="mx-auto mb-2 text-purple-400"></i>
+                                    <div class="font-semibold text-sm">Tailwind CSS</div>
+                                    <div class="text-xs text-slate-400">Styling & UI</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <i data-lucide="arrow-down" class="text-slate-500"></i>
+
+                        <!-- Server Layer -->
+                        <div class="w-full">
+                            <div class="text-xs text-slate-500 mb-2 uppercase tracking-wider font-semibold">2. Server / API</div>
+                            <div class="bg-slate-800 border border-indigo-500/50 p-4 rounded-lg text-center shadow-lg relative overflow-hidden">
+                                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                                <i data-lucide="server" class="mx-auto mb-2 text-indigo-400"></i>
+                                <div class="font-semibold">Next.js Server Actions</div>
+                                <div class="text-xs text-slate-400 mt-1">Handles business logic & API requests securely</div>
+                            </div>
+                        </div>
+
+                        <i data-lucide="arrow-down" class="text-slate-500"></i>
+
+                        <!-- Database Layer -->
+                        <div class="w-full">
+                            <div class="text-xs text-slate-500 mb-2 uppercase tracking-wider font-semibold">3. Database</div>
+                            <div class="bg-slate-800 border border-emerald-500/30 p-4 rounded-lg text-center shadow-lg flex items-center justify-center space-x-4">
+                                <i data-lucide="database" class="text-emerald-400 w-8 h-8"></i>
+                                <div class="text-left">
+                                    <div class="font-semibold text-emerald-400">PostgreSQL</div>
+                                    <div class="text-xs text-slate-400">Relational Database (pg pool)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Footer deployment -->
+        <div class="mt-12 pt-6 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center text-sm text-slate-500">
+            <div class="flex items-center mb-4 md:mb-0">
+                <i data-lucide="cloud" class="mr-2"></i>
+                Deployed on <span class="text-white font-semibold ml-1">Vercel</span>
+            </div>
+            <div>Generated for SMKCC AssetX Project</div>
+        </div>
+
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
