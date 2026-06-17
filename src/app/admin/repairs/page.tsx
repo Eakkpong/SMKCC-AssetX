@@ -73,6 +73,7 @@ export default async function AdminRepairsPage({ searchParams }: { searchParams:
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">อาการเสีย</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ค่าใช้จ่าย</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ประเมิน</th>
                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
               </tr>
             </thead>
@@ -110,6 +111,19 @@ export default async function AdminRepairsPage({ searchParams }: { searchParams:
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusBadge}`}>
                           {r.status}
                         </span>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-center">
+                        {r.rating_overall ? (
+                          <div className="flex flex-col items-center" title={r.feedback || 'ไม่มีข้อเสนอแนะ'}>
+                            <div className="flex items-center text-yellow-500">
+                              <span className="font-bold mr-1">{r.rating_overall}</span>
+                              <span>⭐</span>
+                            </div>
+                            {r.feedback && <span className="text-xs text-gray-400 mt-1 truncate w-16" title={r.feedback}>💬 มีคอมเมนต์</span>}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400">-</span>
+                        )}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <Link href={`/admin/repairs/${r.id}/edit`} className="text-indigo-600 hover:text-indigo-900 inline-flex items-center">

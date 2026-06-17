@@ -49,6 +49,43 @@ export default async function AdminEditRepairPage({ params }: { params: Promise<
         </div>
       </div>
 
+      {r.rating_overall && (
+        <div className="bg-white rounded-lg shadow-sm border border-yellow-200 overflow-hidden mb-6">
+          <div className="p-4 bg-yellow-50 border-b border-yellow-200">
+            <h2 className="text-lg font-bold text-yellow-800">ผลการประเมินความพึงพอใจ</h2>
+          </div>
+          <div className="p-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <div className="bg-yellow-50 p-3 rounded-lg text-center">
+                <p className="text-xs text-yellow-700 mb-1">ความรวดเร็ว</p>
+                <div className="text-xl font-bold text-yellow-600">{r.rating_speed} ⭐</div>
+              </div>
+              <div className="bg-yellow-50 p-3 rounded-lg text-center">
+                <p className="text-xs text-yellow-700 mb-1">คุณภาพ</p>
+                <div className="text-xl font-bold text-yellow-600">{r.rating_quality} ⭐</div>
+              </div>
+              <div className="bg-yellow-50 p-3 rounded-lg text-center">
+                <p className="text-xs text-yellow-700 mb-1">มารยาท/บริการ</p>
+                <div className="text-xl font-bold text-yellow-600">{r.rating_service} ⭐</div>
+              </div>
+              <div className="bg-yellow-50 p-3 rounded-lg text-center">
+                <p className="text-xs text-yellow-700 mb-1">ภาพรวม</p>
+                <div className="text-xl font-bold text-yellow-600">{r.rating_overall} ⭐</div>
+              </div>
+            </div>
+            {r.feedback && (
+              <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
+                <p className="text-sm font-semibold text-gray-700 mb-1">ข้อเสนอแนะเพิ่มเติม:</p>
+                <p className="text-sm text-gray-800">{r.feedback}</p>
+              </div>
+            )}
+            <p className="text-xs text-gray-400 mt-3 text-right">
+              ประเมินเมื่อ: {new Date(r.rated_at).toLocaleString('th-TH')}
+            </p>
+          </div>
+        </div>
+      )}
+
       <form action={updateRepairStatus} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <input type="hidden" name="repair_id" value={r.id} />
         <input type="hidden" name="equipment_id" value={r.equipment_id} />

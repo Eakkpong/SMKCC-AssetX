@@ -89,6 +89,18 @@ export async function updateRepairStatus(formData: FormData) {
             adminNotesHtml = `<li><b>หมายเหตุจากช่าง:</b> ${admin_notes}</li>`;
           }
 
+          let feedbackHtml = '';
+          if (status === 'เสร็จสิ้น') {
+            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+            const feedbackUrl = `${baseUrl}/repair/${repair_id}/feedback`;
+            feedbackHtml = `
+              <div style="margin-top: 30px; text-align: center;">
+                <p>ทางทีมงานขอรบกวนเวลาท่านประเมินความพึงพอใจการให้บริการ เพื่อนำไปพัฒนาและปรับปรุงครับ</p>
+                <a href="${feedbackUrl}" style="display: inline-block; padding: 12px 24px; background-color: #f59e0b; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 10px;">⭐ ประเมินความพึงพอใจการให้บริการ</a>
+              </div>
+            `;
+          }
+
           const mailOptions = {
             from: `"SMKCC IT Support" <${smtpUser}>`,
             to: data.email,
@@ -104,6 +116,7 @@ export async function updateRepairStatus(formData: FormData) {
                     <li><b>สถานะล่าสุด:</b> <strong style="color: #2563eb;">${statusText}</strong></li>
                     ${adminNotesHtml}
                   </ul>
+                  ${feedbackHtml}
                   <br/>
                   <p style="color: #64748b; font-size: 14px;">ขอบคุณที่ใช้บริการระบบ SMKCC AssetX</p>
                 </div>
