@@ -20,8 +20,8 @@ export async function generateBorrowingPdf(docData: any) {
   });
 
   try {
-    // Fetch Sarabun font from Google Fonts GitHub
-    const fontUrl = 'https://raw.githubusercontent.com/google/fonts/main/ofl/sarabun/Sarabun-Regular.ttf';
+    // Fetch Sarabun font from local public folder
+    const fontUrl = '/fonts/Sarabun-Regular.ttf';
     const response = await fetch(fontUrl);
     if (!response.ok) throw new Error('Font fetch failed');
     const fontBuffer = await response.arrayBuffer();
