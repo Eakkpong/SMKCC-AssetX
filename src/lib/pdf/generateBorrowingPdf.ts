@@ -35,67 +35,179 @@ export async function generateBorrowingPdf(docData: any) {
     console.warn('Failed to load Thai font, falling back to default', error);
   }
 
-  const pageWidth = doc.internal.pageSize.getWidth();
-  
-  // Header
-  doc.setFontSize(20);
-  doc.text('ใบยืมพัสดุ (Paperless)', pageWidth / 2, 20, { align: 'center' });
-  
   doc.setFontSize(16);
-  doc.text(`เลขที่เอกสาร: ${docData.document_no}`, 150, 30);
+
+  // Title
+  doc.setFontSize(18);
+  doc.text('ใบยืมพัสดุ - ครุภัณฑ์', 105, 15, { align: 'center' });
+  doc.setFontSize(16);
+  doc.text('วิทยาลัยชุมชนสมุทรสาคร', 105, 22, { align: 'center' });
+
+  // Top right
+  doc.text(`เลขที่: ${docData.document_no || '......................../........................'}`, 130, 30);
+  doc.text(`วันที่: ${new Date(docData.borrow_date).toLocaleDateString('th-TH')}`, 130, 37);
+
+  // Left
+  doc.text('เรื่อง ขออนุมัติยืมพัสดุ-ครุภัณฑ์', 20, 47);
+  doc.text('เรียน หัวหน้าเจ้าหน้าที่พัสดุ', 20, 55);
+
+  // Content
+  doc.text(`ข้าพเจ้า..........................................................................ตำแหน่ง...................................................................`, 30, 65);
+  // Overlay text on the dotted lines
+  doc.text(`${docData.title}${docData.first_name} ${docData.last_name}`, 45, 64);
+  doc.text(`${docData.position}`, 135, 64);
+
+  doc.text(`ขอยืมพัสดุ - ครุภัณฑ์ เพื่อใช้ในการปฏิบัติราชการงาน...........................................................................................`, 20, 73);
+  doc.text(`${docData.purpose}`, 125, 72);
   
-  // Body Text
-  doc.text(`วันที่ยืม: ${new Date(docData.borrow_date).toLocaleDateString('th-TH')}`, 20, 40);
-  doc.text(`กำหนดส่งคืน: ${new Date(docData.expected_return_date).toLocaleDateString('th-TH')}`, 100, 40);
-  
-  doc.text(`ข้าพเจ้า: ${docData.title}${docData.first_name} ${docData.last_name}`, 20, 50);
-  doc.text(`ตำแหน่ง: ${docData.position}`, 100, 50);
-  
-  doc.text(`มีความประสงค์ขอยืมพัสดุเพื่อ: ${docData.purpose}`, 20, 60);
+  doc.text('ดังรายการต่อไปนี้', 20, 81);
 
   // Table
   const tableData = docData.items.map((item: any, index: number) => [
     index + 1,
+    `${item.category} ${item.brand} ${item.model}`,
+    '1',
     item.asset_code,
-    `${item.category} ${item.brand} ${item.model}`
+    ''
   ]);
 
+  // Pad to at least 5 rows to look like the form
+  while (tableData.length < 5) {
+    tableData.push(['', '', '', '', '']);
+  }
+
   autoTable(doc, {
-    startY: 70,
-    head: [['ลำดับ', 'รหัสพัสดุ', 'รายการ']],
+    startY: 85,
+    head: [['ที่', 'รายการ', 'จำนวน', 'หมายเลข/รหัสครุภัณฑ์', 'หมายเหตุ']],
     body: tableData,
-    styles: { font: 'Sarabun', fontSize: 14 },
-    headStyles: { fillColor: [30, 58, 138] },
+    styles: { font: 'Sarabun', fontSize: 14, lineColor: [0, 0, 0], lineWidth: 0.2 },
+    headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], halign: 'center' },
+    bodyStyles: { textColor: [0, 0, 0] },
+    columnStyles: { 
+      0: { halign: 'center', cellWidth: 12 },
+      2: { halign: 'center', cellWidth: 20 },
+      3: { halign: 'center', cellWidth: 45 },
+      4: { cellWidth: 25 }
+    },
     theme: 'grid'
   });
 
-  const finalY = (doc as any).lastAutoTable.finalY + 20;
+  let finalY = (doc as any).lastAutoTable.finalY + 8;
 
-  // Signatures Section
-  const drawSignatureBlock = (roleKey: string, title: string, name: string, x: number, y: number) => {
-    doc.setFontSize(14);
-    doc.text(title, x + 25, y, { align: 'center' });
+  // Dates below table
+  doc.text(`กำหนดรับยืม วันที่......................................................กำหนดส่งคืน วันที่......................................................`, 20, finalY);
+  doc.text(`${new Date(docData.borrow_date).toLocaleDateString('th-TH')}`, 55, finalY - 1);
+  doc.text(`${new Date(docData.expected_return_date).toLocaleDateString('th-TH')}`, 145, finalY - 1);
+
+  finalY += 8;
+
+  // Long paragraph
+  doc.setFontSize(14);
+  const text1 = 'หาก วัสดุ-ครุภัณฑ์ ที่ขอยืมเกิดชำรุดเสียหาย หรือใช้การไม่ได้ หรือสูญหายไป ข้าพเจ้าจะรับผิดชอบจัดการแก้ไขซ่อมแซม';
+  const text2 = 'ให้คงสภาพเดิม โดยเสียค่าใช้จ่ายของตัวเอง หรือชดใช้เป็นวัสดุ-ครุภัณฑ์ประเภท ชนิด ขนาด ลักษณะ คุณภาพ อย่างเดียวกัน หรือ';
+  const text3 = 'ชดใช้เป็นเงินตามราคาที่เป็นอยู่ในขณะที่ยืม โดยไม่มีเงื่อนไขใดๆ ทั้งสิ้น';
+  
+  doc.text(text1, 30, finalY);
+  doc.text(text2, 20, finalY + 6);
+  doc.text(text3, 20, finalY + 12);
+
+  finalY += 20;
+  doc.text('จึงเรียนมาเพื่อพิจารณาอนุมัติ', 30, finalY);
+
+  // Borrower Signature helper
+  const drawSig = (role: string, nameLine1: string, nameLine2: string, x: number, y: number, align: 'left'|'center' = 'center') => {
+    const sig = docData.signatures?.find((s: any) => s.role === role);
     
-    const sig = docData.signatures?.find((s: any) => s.role === roleKey);
-    if (sig && sig.signature_data) {
-      doc.addImage(sig.signature_data, 'PNG', x, y + 5, 50, 20);
+    if (align === 'center') {
+      doc.text(`(ลงชื่อ)........................................................${nameLine1}`, x + 25, y, { align: 'center' });
+      if (sig && sig.signature_data) {
+        doc.addImage(sig.signature_data, 'PNG', x, y + 2, 50, 15);
+      }
+      doc.text(nameLine2, x + 25, y + 20, { align: 'center' });
     } else {
-      doc.text('(................................................)', x + 25, y + 20, { align: 'center' });
+      doc.text(`(ลงชื่อ)........................................................${nameLine1}`, x, y);
+      if (sig && sig.signature_data) {
+        doc.addImage(sig.signature_data, 'PNG', x + 5, y + 2, 45, 12);
+      }
+      doc.text(nameLine2, x + 15, y + 17);
     }
-    
-    doc.text(name, x + 25, y + 32, { align: 'center' });
   };
 
-  // Row 1: Borrower & Asst Parcel
-  drawSignatureBlock('borrower', 'ผู้ขอยืม', `(${docData.title}${docData.first_name} ${docData.last_name})`, 30, finalY);
-  drawSignatureBlock('assistant_parcel', 'ผู้ช่วยเจ้าหน้าที่พัสดุ', '(..........................................)', 110, finalY);
+  drawSig('borrower', 'ผู้ขอยืม', `(${docData.title}${docData.first_name} ${docData.last_name})`, 125, finalY + 5);
 
-  // Row 2: Parcel Officer & Head Parcel
-  drawSignatureBlock('parcel_officer', 'ความเห็นเจ้าหน้าที่พัสดุ', '(..........................................)', 30, finalY + 50);
-  drawSignatureBlock('head_parcel', 'หัวหน้าเจ้าหน้าที่พัสดุ', '(นางสาวพรพรรณ นิลศิริ)', 110, finalY + 50);
+  finalY += 32;
 
-  // Row 3: Director
-  drawSignatureBlock('director', 'ความเห็นผู้อำนวยการ', '(นายเผด็จ เปล่งปลั่ง)', 70, finalY + 100);
+  const col1X = 20;
+  const col2X = 110;
+
+  // Left: ผู้ช่วยเจ้าหน้าที่พัสดุ
+  doc.setFontSize(14);
+  doc.text('ความเห็นผู้ช่วยเจ้าหน้าที่พัสดุ', col1X, finalY);
+  doc.rect(col1X + 5, finalY + 3, 3, 3);
+  doc.text('ตรวจสอบแล้ว ยืมได้ (วัสดุ - ครุภัณฑ์พร้อมใช้งาน)', col1X + 10, finalY + 6);
+  doc.rect(col1X + 5, finalY + 9, 3, 3);
+  doc.text('ตรวจสอบแล้วไม่เห็นควรให้ยืม', col1X + 10, finalY + 12);
+  doc.text('เนื่องจาก................................................................', col1X, finalY + 19);
+  
+  drawSig('assistant_parcel', '', '(........................................................)', col1X, finalY + 28, 'left');
+
+  // Right: เจ้าหน้าที่พัสดุ
+  doc.text('ความเห็นเจ้าหน้าที่พัสดุ', col2X, finalY + 12);
+  doc.rect(col2X + 5, finalY + 15, 3, 3);
+  doc.text('เห็นชอบ', col2X + 10, finalY + 18);
+  doc.rect(col2X + 30, finalY + 15, 3, 3);
+  doc.text('ไม่เห็นชอบ', col2X + 35, finalY + 18);
+
+  drawSig('parcel_officer', '', '(........................................................)', col2X, finalY + 28, 'left');
+
+  finalY += 48;
+
+  // Left: หัวหน้าเจ้าหน้าที่พัสดุ
+  doc.text('ความเห็นหัวหน้าเจ้าหน้าที่พัสดุ', col1X, finalY);
+  doc.rect(col1X + 5, finalY + 3, 3, 3);
+  doc.text('เห็นชอบ', col1X + 10, finalY + 6);
+  doc.rect(col1X + 30, finalY + 3, 3, 3);
+  doc.text('ไม่เห็นชอบ', col1X + 35, finalY + 6);
+
+  drawSig('head_parcel', '', '(นางสาวพรพรรณ นิลศิริ)', col1X, finalY + 15, 'left');
+
+  // Right: ผู้อำนวยการ
+  doc.text('ความเห็นผู้อำนวยการ', col2X, finalY);
+  doc.rect(col2X + 5, finalY + 3, 3, 3);
+  doc.text('อนุมัติ', col2X + 10, finalY + 6);
+  doc.rect(col2X + 30, finalY + 3, 3, 3);
+  doc.text('ไม่อนุมัติ', col2X + 35, finalY + 6);
+
+  drawSig('director', '', '(นายเผด็จ เปล่งปลั่ง)', col2X, finalY + 15, 'left');
+  doc.text('ผู้อำนวยการวิทยาลัยชุมชนสมุทรสาคร', col2X + 35, finalY + 23, { align: 'center' });
+
+  finalY += 32;
+
+  if (finalY > 230) {
+    doc.addPage();
+    finalY = 20;
+  }
+
+  // Draw rectangle for bottom box
+  doc.rect(20, finalY, 170, 52);
+  
+  doc.text(`วันที่......................................................................`, 25, finalY + 10);
+  doc.text(`ผู้จ่ายของ................................................................`, 25, finalY + 25);
+  doc.text(`ผู้รับของ..................................................................`, 25, finalY + 40);
+
+  // Right column inside box
+  doc.text('ได้รับ', 100, finalY + 10);
+  doc.rect(112, finalY + 7, 3, 3);
+  doc.text('วัสดุ', 118, finalY + 10);
+  doc.rect(128, finalY + 7, 3, 3);
+  doc.text('ครุภัณฑ์ ตามรายการข้างต้นเรียบร้อย', 134, finalY + 10);
+  doc.text('และครบถ้วนแล้ว', 100, finalY + 16);
+
+  doc.text(`ลงชื่อ................................................ผู้รับคืน`, 100, finalY + 25);
+  doc.text(`(................................................)......../......../........`, 105, finalY + 32);
+
+  doc.text(`ลงชื่อ................................................ผู้คืน`, 100, finalY + 41);
+  doc.text(`(................................................)......../......../........`, 105, finalY + 48);
 
   doc.save(`Borrow-${docData.document_no}.pdf`);
 }
