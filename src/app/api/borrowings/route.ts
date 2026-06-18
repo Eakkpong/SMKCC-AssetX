@@ -6,11 +6,6 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    const session = await getSession();
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const limit = searchParams.get('limit') || '50';
 
@@ -33,11 +28,6 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const session = await getSession();
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const body = await request.json();
     const { personnel_id, expected_return_date, purpose, equipment_ids } = body;
 
