@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 // Convert ArrayBuffer to Base64
 function arrayBufferToBase64(buffer: ArrayBuffer) {
@@ -60,7 +60,7 @@ export async function generateBorrowingPdf(docData: any) {
     `${item.category} ${item.brand} ${item.model}`
   ]);
 
-  (doc as any).autoTable({
+  autoTable(doc, {
     startY: 70,
     head: [['ลำดับ', 'รหัสพัสดุ', 'รายการ']],
     body: tableData,
