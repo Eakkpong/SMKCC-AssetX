@@ -20,16 +20,17 @@ export async function generateBorrowingPdf(docData: any) {
   });
 
   try {
-    // Fetch THSarabunNew font from CDN
-    const fontUrl = 'https://cdn.jsdelivr.net/npm/font-th-sarabun-new@1.0.0/fonts/THSarabunNew.ttf';
+    // Fetch Sarabun font from Google Fonts GitHub
+    const fontUrl = 'https://raw.githubusercontent.com/google/fonts/main/ofl/sarabun/Sarabun-Regular.ttf';
     const response = await fetch(fontUrl);
+    if (!response.ok) throw new Error('Font fetch failed');
     const fontBuffer = await response.arrayBuffer();
     const fontBase64 = arrayBufferToBase64(fontBuffer);
 
     // Add Thai font
-    doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
-    doc.addFont('THSarabunNew.ttf', 'THSarabun', 'normal');
-    doc.setFont('THSarabun');
+    doc.addFileToVFS('Sarabun-Regular.ttf', fontBase64);
+    doc.addFont('Sarabun-Regular.ttf', 'Sarabun', 'normal');
+    doc.setFont('Sarabun');
   } catch (error) {
     console.warn('Failed to load Thai font, falling back to default', error);
   }
@@ -63,7 +64,7 @@ export async function generateBorrowingPdf(docData: any) {
     startY: 70,
     head: [['ลำดับ', 'รหัสพัสดุ', 'รายการ']],
     body: tableData,
-    styles: { font: 'THSarabun', fontSize: 14 },
+    styles: { font: 'Sarabun', fontSize: 14 },
     headStyles: { fillColor: [30, 58, 138] },
     theme: 'grid'
   });
