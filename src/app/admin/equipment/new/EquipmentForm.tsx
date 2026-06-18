@@ -109,6 +109,7 @@ export default function EquipmentForm({ personnel }: { personnel: any[] }) {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">สถานะ</label>
             <select name="status" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+              <option value="ว่าง">ว่าง (พร้อมให้ยืม)</option>
               <option value="ใช้งานได้">ใช้งานได้</option>
               <option value="ชำรุด">ชำรุด</option>
               <option value="ส่งซ่อม">ส่งซ่อม</option>

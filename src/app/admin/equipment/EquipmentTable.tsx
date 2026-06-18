@@ -283,7 +283,7 @@ export default function EquipmentTable({ initialEquipments }: { initialEquipment
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{eq.location}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${eq.status === 'ใช้งานได้' ? 'bg-green-100 text-green-800' : eq.status === 'รอซ่อม' ? 'bg-orange-100 text-orange-800' : 'bg-red-100 text-red-800'}`}>
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${eq.status === 'ว่าง' ? 'bg-blue-100 text-blue-800' : eq.status === 'ใช้งานได้' ? 'bg-green-100 text-green-800' : eq.status === 'ชำรุด' ? 'bg-orange-100 text-orange-800' : 'bg-red-100 text-red-800'}`}>
                       {eq.status}
                     </span>
                   </td>
