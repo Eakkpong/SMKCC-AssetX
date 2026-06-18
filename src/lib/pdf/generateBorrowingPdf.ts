@@ -118,11 +118,11 @@ export async function generateBorrowingPdf(docData: any) {
   const text4 = 'โดยไม่มีเงื่อนไขใดๆ ทั้งสิ้น';
   
   doc.text(text1, 25, finalY);
-  doc.text(text2, 15, finalY + 5);
-  doc.text(text3, 15, finalY + 10);
-  doc.text(text4, 15, finalY + 15);
+  doc.text(text2, 15, finalY + 4.5);
+  doc.text(text3, 15, finalY + 9);
+  doc.text(text4, 15, finalY + 13.5);
 
-  finalY += 21;
+  finalY += 19;
   doc.text('จึงเรียนมาเพื่อพิจารณาอนุมัติ', 25, finalY);
 
   // Borrower Signature helper
@@ -145,9 +145,9 @@ export async function generateBorrowingPdf(docData: any) {
     }
   };
 
-  drawSig('borrower', 'ผู้ขอยืม', `(${docData.title}${docData.first_name} ${docData.last_name})`, 125, finalY + 12);
+  drawSig('borrower', 'ผู้ขอยืม', `(${docData.title}${docData.first_name} ${docData.last_name})`, 125, finalY + 10);
 
-  finalY += 22;
+  finalY += 18;
 
   const col1X = 15;
   const col2X = 105;
@@ -158,9 +158,9 @@ export async function generateBorrowingPdf(docData: any) {
   doc.text('ตรวจสอบแล้ว ยืมได้ (วัสดุ-ครุภัณฑ์พร้อมใช้)', col1X + 10, finalY + 6);
   doc.rect(col1X + 5, finalY + 9, 3, 3);
   doc.text('ตรวจสอบแล้วไม่เห็นควรให้ยืม', col1X + 10, finalY + 12);
-  doc.text('เนื่องจาก...............................................', col1X, finalY + 18);
+  doc.text('เนื่องจาก...............................................', col1X, finalY + 17);
   
-  drawSig('assistant_parcel', '', '(..................................................)', col1X, finalY + 32, 'left');
+  drawSig('assistant_parcel', '', '(..................................................)', col1X, finalY + 30, 'left');
 
   // Right: เจ้าหน้าที่พัสดุ
   doc.text('ความเห็นเจ้าหน้าที่พัสดุ', col2X, finalY);
@@ -169,9 +169,9 @@ export async function generateBorrowingPdf(docData: any) {
   doc.rect(col2X + 25, finalY + 3, 3, 3);
   doc.text('ไม่เห็นชอบ', col2X + 30, finalY + 6);
 
-  drawSig('parcel_officer', '', '(..................................................)', col2X, finalY + 32, 'left');
+  drawSig('parcel_officer', '', '(..................................................)', col2X, finalY + 30, 'left');
 
-  finalY += 42;
+  finalY += 38;
 
   // Left: หัวหน้าเจ้าหน้าที่พัสดุ
   doc.text('ความเห็นหัวหน้าเจ้าหน้าที่พัสดุ', col1X, finalY);
@@ -180,7 +180,7 @@ export async function generateBorrowingPdf(docData: any) {
   doc.rect(col1X + 25, finalY + 3, 3, 3);
   doc.text('ไม่เห็นชอบ', col1X + 30, finalY + 6);
 
-  drawSig('head_parcel', '', '(นางสาวกชนิภา การประเสริฐ)', col1X, finalY + 22, 'left');
+  drawSig('head_parcel', '', '(นางสาวกชนิภา การประเสริฐ)', col1X, finalY + 20, 'left');
 
   // Right: ผู้อำนวยการ
   doc.text('ความเห็นผู้อำนวยการ', col2X, finalY);
@@ -189,32 +189,32 @@ export async function generateBorrowingPdf(docData: any) {
   doc.rect(col2X + 25, finalY + 3, 3, 3);
   doc.text('ไม่อนุมัติ', col2X + 30, finalY + 6);
 
-  drawSig('director', '', '(นายเผด็จ เปล่งปลั่ง)', col2X, finalY + 22, 'left');
-  doc.text('ผู้อำนวยการวิทยาลัยชุมชนสมุทรสาคร', col2X + 20, finalY + 34, { align: 'center' });
+  drawSig('director', '', '(นายเผด็จ เปล่งปลั่ง)', col2X, finalY + 20, 'left');
+  doc.text('ผู้อำนวยการวิทยาลัยชุมชนสมุทรสาคร', col2X + 20, finalY + 30, { align: 'center' });
 
-  finalY += 40;
+  finalY += 34;
 
   // Bottom Box - Complete Redesign
-  doc.rect(15, finalY, 180, 32);
-  doc.line(105, finalY, 105, finalY + 32);
+  doc.rect(15, finalY, 180, 28);
+  doc.line(105, finalY, 105, finalY + 28);
 
   // Headers
   doc.setFont('Sarabun', 'bold');
-  doc.text('การรับมอบพัสดุ (สำหรับวันรับพัสดุ)', 60, finalY + 6, { align: 'center' });
-  doc.text('การส่งคืนพัสดุ (สำหรับวันส่งคืน)', 150, finalY + 6, { align: 'center' });
+  doc.text('การรับมอบพัสดุ (สำหรับวันรับพัสดุ)', 60, finalY + 5, { align: 'center' });
+  doc.text('การส่งคืนพัสดุ (สำหรับวันส่งคืน)', 150, finalY + 5, { align: 'center' });
   doc.setFont('Sarabun', 'normal');
 
   // Left
-  doc.text('ได้รับพัสดุ-ครุภัณฑ์ ตามรายการข้างต้นเรียบร้อยแล้ว', 60, finalY + 11, { align: 'center' });
-  doc.text('ผู้รับของ .....................................................', 20, finalY + 17);
-  doc.text('ผู้จ่ายของ ...................................................', 20, finalY + 23);
-  doc.text('วันที่ ............./............./.............', 35, finalY + 29);
+  doc.text('ได้รับพัสดุตามรายการข้างต้นเรียบร้อยแล้ว', 60, finalY + 10, { align: 'center' });
+  doc.text('ผู้รับของ .....................................................', 20, finalY + 16);
+  doc.text('ผู้จ่ายของ ...................................................', 20, finalY + 21);
+  doc.text('วันที่ ............./............./.............', 35, finalY + 26);
 
   // Right
-  doc.text('ได้รับคืนพัสดุ-ครุภัณฑ์ ตามรายการข้างต้นเรียบร้อยแล้ว', 150, finalY + 11, { align: 'center' });
-  doc.text('ผู้คืนของ .....................................................', 110, finalY + 17);
-  doc.text('ผู้รับคืน ......................................................', 110, finalY + 23);
-  doc.text('วันที่ ............./............./.............', 125, finalY + 29);
+  doc.text('ได้รับคืนพัสดุตามรายการข้างต้นเรียบร้อยแล้ว', 150, finalY + 10, { align: 'center' });
+  doc.text('ผู้คืนของ .....................................................', 110, finalY + 16);
+  doc.text('ผู้รับคืน ......................................................', 110, finalY + 21);
+  doc.text('วันที่ ............./............./.............', 125, finalY + 26);
 
   doc.save(`Borrow-${docData.document_no}.pdf`);
 }
