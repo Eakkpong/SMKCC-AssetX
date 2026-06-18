@@ -18,7 +18,7 @@ export default function KioskClient({ docData, docId }: { docData: any, docId: s
     { key: 'borrower', title: 'ผู้ขอยืม', name: `${docData.title}${docData.first_name} ${docData.last_name}` },
     { key: 'assistant_parcel', title: 'ผู้ช่วยเจ้าหน้าที่พัสดุ', name: '(..........................................)' },
     { key: 'parcel_officer', title: 'เจ้าหน้าที่พัสดุ', name: '(..........................................)' },
-    { key: 'head_parcel', title: 'หัวหน้าเจ้าหน้าที่พัสดุ', name: '(นางสาวพรพรรณ นิลศิริ)' },
+    { key: 'head_parcel', title: 'หัวหน้าเจ้าหน้าที่พัสดุ', name: '(นางสาวกชนิภา การประเสริฐ)' },
     { key: 'director', title: 'ผู้อำนวยการ', name: '(นายเผด็จ เปล่งปลั่ง)' }
   ];
 
