@@ -59,7 +59,8 @@ export default function KioskClient({ docData, docId }: { docData: any, docId: s
   // Generate PDF
   const handleDownloadPDF = async () => {
     try {
-      await generateBorrowingPdf(docData);
+      const currentDocData = { ...docData, signatures };
+      await generateBorrowingPdf(currentDocData);
     } catch (e: any) {
       console.error(e);
       alert('ไม่สามารถสร้าง PDF ได้: ' + (e.message || String(e)));
