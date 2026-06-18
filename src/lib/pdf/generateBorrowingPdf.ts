@@ -49,24 +49,24 @@ export async function generateBorrowingPdf(docData: any) {
   doc.text(`วันที่: ${new Date(docData.borrow_date).toLocaleDateString('th-TH')}`, 130, 36);
 
   // Left
-  doc.text('เรื่อง ขออนุมัติยืมพัสดุ-ครุภัณฑ์', 20, 44);
-  doc.text('เรียน หัวหน้าเจ้าหน้าที่พัสดุ', 20, 50);
+  doc.text('เรื่อง ขออนุมัติยืมพัสดุ-ครุภัณฑ์', 15, 44);
+  doc.text('เรียน หัวหน้าเจ้าหน้าที่พัสดุ', 15, 50);
 
   // Content Row 1
-  doc.text('ข้าพเจ้า', 20, 58);
-  doc.text('..........................................................................................', 35, 58);
-  doc.text(`${docData.title}${docData.first_name} ${docData.last_name}`, 40, 57);
+  doc.text('ข้าพเจ้า', 15, 58);
+  doc.text('..........................................................................................', 30, 58);
+  doc.text(`${docData.title}${docData.first_name} ${docData.last_name}`, 35, 57);
 
-  doc.text('ตำแหน่ง', 125, 58);
-  doc.text('......................................................', 140, 58);
-  doc.text(`${docData.position}`, 145, 57);
+  doc.text('ตำแหน่ง', 120, 58);
+  doc.text('......................................................', 135, 58);
+  doc.text(`${docData.position}`, 140, 57);
 
   // Content Row 2
-  doc.text('ขอยืมพัสดุ - ครุภัณฑ์ เพื่อใช้ในการปฏิบัติราชการงาน', 20, 64);
-  doc.text('................................................................................................', 105, 64);
+  doc.text('ขอยืมพัสดุ - ครุภัณฑ์ เพื่อใช้ในการปฏิบัติราชการงาน', 15, 64);
+  doc.text('...................................................................................................', 100, 64);
   doc.text(`${docData.purpose}`, 110, 63);
   
-  doc.text('ดังรายการต่อไปนี้', 20, 70);
+  doc.text('ดังรายการต่อไปนี้', 15, 70);
 
   // Table
   const tableData = docData.items.map((item: any, index: number) => [
@@ -83,6 +83,7 @@ export async function generateBorrowingPdf(docData: any) {
 
   autoTable(doc, {
     startY: 73,
+    margin: { left: 15, right: 15 },
     head: [['ที่', 'รายการ', 'จำนวน', 'หมายเลข/รหัสครุภัณฑ์', 'หมายเหตุ']],
     body: tableData,
     styles: { font: 'Sarabun', fontSize: 12, lineColor: [0, 0, 0], lineWidth: 0.2 },
@@ -97,30 +98,32 @@ export async function generateBorrowingPdf(docData: any) {
     theme: 'grid'
   });
 
-  let finalY = (doc as any).lastAutoTable.finalY + 6;
+  let finalY = (doc as any).lastAutoTable.finalY + 5;
 
   // Dates below table
-  doc.text(`กำหนดรับยืม วันที่`, 20, finalY);
-  doc.text(`${new Date(docData.borrow_date).toLocaleDateString('th-TH')}`, 55, finalY - 1);
-  doc.text('...............................................', 52, finalY);
+  doc.text(`กำหนดรับยืม วันที่`, 15, finalY);
+  doc.text(`${new Date(docData.borrow_date).toLocaleDateString('th-TH')}`, 50, finalY - 1);
+  doc.text('...............................................', 47, finalY);
 
-  doc.text(`กำหนดส่งคืน วันที่`, 110, finalY);
-  doc.text(`${new Date(docData.expected_return_date).toLocaleDateString('th-TH')}`, 145, finalY - 1);
-  doc.text('...............................................', 142, finalY);
+  doc.text(`กำหนดส่งคืน วันที่`, 105, finalY);
+  doc.text(`${new Date(docData.expected_return_date).toLocaleDateString('th-TH')}`, 140, finalY - 1);
+  doc.text('...............................................', 137, finalY);
 
-  finalY += 8;
+  finalY += 6;
 
   // Long paragraph - manually split to strictly avoid right-edge overflow
-  const text1 = 'หาก วัสดุ-ครุภัณฑ์ ที่ขอยืมเกิดชำรุดเสียหาย หรือใช้การไม่ได้ หรือสูญหายไป ข้าพเจ้าจะรับผิดชอบจัดการแก้ไขซ่อมแซม';
-  const text2 = 'ให้คงสภาพเดิม โดยเสียค่าใช้จ่ายของตัวเอง หรือชดใช้เป็นวัสดุ-ครุภัณฑ์ประเภท ชนิด ขนาด ลักษณะ คุณภาพ อย่างเดียวกัน หรือ';
-  const text3 = 'ชดใช้เป็นเงินตามราคาที่เป็นอยู่ในขณะที่ยืม โดยไม่มีเงื่อนไขใดๆ ทั้งสิ้น';
+  const text1 = 'หาก วัสดุ-ครุภัณฑ์ ที่ขอยืมเกิดชำรุดเสียหาย หรือใช้การไม่ได้ หรือสูญหายไป ข้าพเจ้าจะรับผิดชอบ';
+  const text2 = 'จัดการแก้ไขซ่อมแซมให้คงสภาพเดิม โดยเสียค่าใช้จ่ายของตัวเอง หรือชดใช้เป็นวัสดุ-ครุภัณฑ์';
+  const text3 = 'ประเภท ชนิด ขนาด ลักษณะ คุณภาพ อย่างเดียวกัน หรือชดใช้เป็นเงินตามราคาที่เป็นอยู่ในขณะที่ยืม';
+  const text4 = 'โดยไม่มีเงื่อนไขใดๆ ทั้งสิ้น';
   
-  doc.text(text1, 30, finalY);
-  doc.text(text2, 20, finalY + 6);
-  doc.text(text3, 20, finalY + 12);
+  doc.text(text1, 25, finalY);
+  doc.text(text2, 15, finalY + 5);
+  doc.text(text3, 15, finalY + 10);
+  doc.text(text4, 15, finalY + 15);
 
-  finalY += 18;
-  doc.text('จึงเรียนมาเพื่อพิจารณาอนุมัติ', 30, finalY);
+  finalY += 22;
+  doc.text('จึงเรียนมาเพื่อพิจารณาอนุมัติ', 25, finalY);
 
   // Borrower Signature helper
   const drawSig = (role: string, nameLine1: string, nameLine2: string, x: number, y: number, align: 'left'|'center' = 'center') => {
@@ -130,24 +133,24 @@ export async function generateBorrowingPdf(docData: any) {
     if (align === 'center') {
       doc.text(`${dashLine}${nameLine1}`, x + 25, y, { align: 'center' });
       if (sig && sig.signature_data) {
-        doc.addImage(sig.signature_data, 'PNG', x + 10, y - 9, 30, 9); // Smaller signature
+        doc.addImage(sig.signature_data, 'PNG', x + 10, y - 14, 30, 9); // Float ABOVE the text line
       }
       doc.text(nameLine2, x + 25, y + 6, { align: 'center' }); 
     } else {
       doc.text(`${dashLine}${nameLine1}`, x, y);
       if (sig && sig.signature_data) {
-        doc.addImage(sig.signature_data, 'PNG', x + 5, y - 9, 30, 9); // Smaller signature
+        doc.addImage(sig.signature_data, 'PNG', x + 5, y - 14, 30, 9); // Float ABOVE the text line
       }
       doc.text(nameLine2, x + 15, y + 6); 
     }
   };
 
-  drawSig('borrower', 'ผู้ขอยืม', `(${docData.title}${docData.first_name} ${docData.last_name})`, 125, finalY + 8);
+  drawSig('borrower', 'ผู้ขอยืม', `(${docData.title}${docData.first_name} ${docData.last_name})`, 125, finalY + 12);
 
-  finalY += 24;
+  finalY += 20;
 
-  const col1X = 20;
-  const col2X = 110;
+  const col1X = 15;
+  const col2X = 105;
 
   // Left: ผู้ช่วยเจ้าหน้าที่พัสดุ
   doc.text('ความเห็นผู้ช่วยเจ้าหน้าที่พัสดุ', col1X, finalY);
@@ -155,9 +158,9 @@ export async function generateBorrowingPdf(docData: any) {
   doc.text('ตรวจสอบแล้ว ยืมได้ (วัสดุ-ครุภัณฑ์พร้อมใช้)', col1X + 10, finalY + 6); // Shortened string
   doc.rect(col1X + 5, finalY + 9, 3, 3);
   doc.text('ตรวจสอบแล้วไม่เห็นควรให้ยืม', col1X + 10, finalY + 12);
-  doc.text('เนื่องจาก......................................................', col1X, finalY + 18);
+  doc.text('เนื่องจาก...................................................', col1X, finalY + 18);
   
-  drawSig('assistant_parcel', '', '(..................................................)', col1X, finalY + 28, 'left');
+  drawSig('assistant_parcel', '', '(..................................................)', col1X, finalY + 32, 'left');
 
   // Right: เจ้าหน้าที่พัสดุ
   doc.text('ความเห็นเจ้าหน้าที่พัสดุ', col2X, finalY); // Perfectly aligned horizontally
@@ -166,9 +169,9 @@ export async function generateBorrowingPdf(docData: any) {
   doc.rect(col2X + 25, finalY + 3, 3, 3);
   doc.text('ไม่เห็นชอบ', col2X + 30, finalY + 6);
 
-  drawSig('parcel_officer', '', '(..................................................)', col2X, finalY + 28, 'left');
+  drawSig('parcel_officer', '', '(..................................................)', col2X, finalY + 32, 'left');
 
-  finalY += 38;
+  finalY += 45;
 
   // Left: หัวหน้าเจ้าหน้าที่พัสดุ
   doc.text('ความเห็นหัวหน้าเจ้าหน้าที่พัสดุ', col1X, finalY);
@@ -177,7 +180,7 @@ export async function generateBorrowingPdf(docData: any) {
   doc.rect(col1X + 25, finalY + 3, 3, 3);
   doc.text('ไม่เห็นชอบ', col1X + 30, finalY + 6);
 
-  drawSig('head_parcel', '', '(นางสาวกชนิภา การประเสริฐ)', col1X, finalY + 18, 'left');
+  drawSig('head_parcel', '', '(นางสาวกชนิภา การประเสริฐ)', col1X, finalY + 24, 'left');
 
   // Right: ผู้อำนวยการ
   doc.text('ความเห็นผู้อำนวยการ', col2X, finalY);
@@ -186,30 +189,30 @@ export async function generateBorrowingPdf(docData: any) {
   doc.rect(col2X + 25, finalY + 3, 3, 3);
   doc.text('ไม่อนุมัติ', col2X + 30, finalY + 6);
 
-  drawSig('director', '', '(นายเผด็จ เปล่งปลั่ง)', col2X, finalY + 18, 'left');
-  doc.text('ผู้อำนวยการวิทยาลัยชุมชนสมุทรสาคร', col2X + 25, finalY + 24, { align: 'center' });
+  drawSig('director', '', '(นายเผด็จ เปล่งปลั่ง)', col2X, finalY + 24, 'left');
+  doc.text('ผู้อำนวยการวิทยาลัยชุมชนสมุทรสาคร', col2X + 25, finalY + 30, { align: 'center' });
 
-  finalY += 30;
+  finalY += 36;
 
   // Bottom Box - heavily compacted height
-  doc.rect(20, finalY, 170, 36);
+  doc.rect(15, finalY, 180, 32);
   
-  doc.text(`วันที่..........................................................`, 25, finalY + 8);
-  doc.text(`ผู้จ่ายของ....................................................`, 25, finalY + 18);
-  doc.text(`ผู้รับของ......................................................`, 25, finalY + 28);
+  doc.text(`วันที่..........................................................`, 20, finalY + 7);
+  doc.text(`ผู้จ่ายของ....................................................`, 20, finalY + 17);
+  doc.text(`ผู้รับของ......................................................`, 20, finalY + 27);
 
   // Right column inside box
-  doc.text('ได้รับ', 100, finalY + 8);
-  doc.rect(112, finalY + 5, 3, 3);
-  doc.text('วัสดุ', 118, finalY + 8);
-  doc.rect(128, finalY + 5, 3, 3);
-  doc.text('ครุภัณฑ์ ตามรายการข้างต้นเรียบร้อยครบถ้วน', 134, finalY + 8);
+  doc.text('ได้รับ', 95, finalY + 7);
+  doc.rect(105, finalY + 4, 3, 3);
+  doc.text('วัสดุ', 110, finalY + 7);
+  doc.rect(120, finalY + 4, 3, 3);
+  doc.text('ครุภัณฑ์ ตามรายการข้างต้นเรียบร้อย', 125, finalY + 7);
 
-  doc.text(`ลงชื่อ........................................ผู้รับคืน`, 100, finalY + 18);
-  doc.text(`(........................................)......./......./.......`, 105, finalY + 23);
+  doc.text(`ลงชื่อ........................................ผู้รับคืน`, 95, finalY + 17);
+  doc.text(`(........................................)......./......./.......`, 100, finalY + 22);
 
-  doc.text(`ลงชื่อ........................................ผู้คืน`, 100, finalY + 28);
-  doc.text(`(........................................)......./......./.......`, 105, finalY + 33);
+  doc.text(`ลงชื่อ........................................ผู้คืน`, 95, finalY + 27);
+  doc.text(`(........................................)......./......./.......`, 100, finalY + 32);
 
   doc.save(`Borrow-${docData.document_no}.pdf`);
 }
