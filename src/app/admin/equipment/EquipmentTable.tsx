@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Search, Edit, Printer, Upload, Download, Trash2, FileText } from 'lucide-react';
 import ExportSingleQrPdfButton from '@/components/ExportSingleQrPdfButton';
 import { generateBulkQrPdf } from '@/lib/pdf/generateBulkQrPdf';
-import Papa from 'papaparse';
+import ExcelJS from 'exceljs';
 
 export default function EquipmentTable({ initialEquipments }: { initialEquipments: any[] }) {
   const [equipments, setEquipments] = useState(initialEquipments);
@@ -41,58 +41,105 @@ export default function EquipmentTable({ initialEquipments }: { initialEquipment
     }
   };
 
-  const handleDownloadTemplate = () => {
-    const csvContent = "asset_code,category,brand,model,location,status,specifications\nCOMP-001,คอมพิวเตอร์,Dell,Optiplex 7090,ห้อง 301,ใช้งานได้,Core i5 Gen 11 8GB SSD256";
-    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
+  const handleDownloadTemplate = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet('อุปกรณ์');
+    
+    sheet.columns = [
+      { header: 'รหัสครุภัณฑ์ (asset_code)', key: 'asset_code', width: 25 },
+      { header: 'หมวดหมู่ (category)', key: 'category', width: 20 },
+      { header: 'ยี่ห้อ (brand)', key: 'brand', width: 15 },
+      { header: 'รุ่น (model)', key: 'model', width: 15 },
+      { header: 'สถานที่ (location)', key: 'location', width: 20 },
+      { header: 'สถานะ (status)', key: 'status', width: 15 },
+      { header: 'รายละเอียด (specifications)', key: 'specifications', width: 30 },
+    ];
+    
+    sheet.addRow({
+      asset_code: 'COMP-001',
+      category: 'คอมพิวเตอร์',
+      brand: 'Dell',
+      model: 'Optiplex 7090',
+      location: 'ห้อง 301',
+      status: 'ใช้งานได้',
+      specifications: 'Core i5 Gen 11 8GB SSD256'
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", "equipment_template.csv");
+    link.setAttribute("download", "equipment_template.xlsx");
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  const handleImportCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsImporting(true);
 
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (results) => {
-        try {
-          const res = await fetch('/api/equipment/bulk', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(results.data)
+    try {
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(await file.arrayBuffer());
+      const worksheet = workbook.worksheets[0];
+      
+      const rows: any[] = [];
+      const headers: string[] = [];
+      
+      worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) {
+          row.eachCell((cell, colNumber) => {
+            const headerText = cell.text || '';
+            const match = headerText.match(/\(([^)]+)\)/);
+            headers[colNumber] = match ? match[1].trim() : headerText.trim();
           });
-          
-          if (!res.ok) throw new Error('Failed to import');
-          
-          const insertedItems = await res.json();
-          setEquipments(prev => [...insertedItems, ...prev]);
-          alert(`นำเข้าสำเร็จ ${insertedItems.length} รายการ ระบบจะสร้าง PDF สำหรับปรินต์ให้ทันที!`);
-          
-          // Generate Bulk PDF automatically for newly imported items
-          await generateBulkQrPdf(insertedItems, `Imported_QR_${new Date().toISOString().slice(0, 10)}.pdf`);
-        } catch (err) {
-          console.error(err);
-          alert('เกิดข้อผิดพลาดในการนำเข้าข้อมูล');
-        } finally {
-          setIsImporting(false);
-          if (fileInputRef.current) fileInputRef.current.value = '';
+        } else {
+          const rowData: any = {};
+          let hasData = false;
+          row.eachCell((cell, colNumber) => {
+            const key = headers[colNumber];
+            if (key) {
+              rowData[key] = cell.text;
+              hasData = true;
+            }
+          });
+          if (hasData) {
+            rows.push(rowData);
+          }
         }
-      },
-      error: (err) => {
-        console.error(err);
-        alert('เกิดข้อผิดพลาดในการอ่านไฟล์ CSV');
+      });
+
+      if (rows.length === 0) {
+        alert('ไม่พบข้อมูลในไฟล์ Excel');
         setIsImporting(false);
+        return;
       }
-    });
+
+      const res = await fetch('/api/equipment/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(rows)
+      });
+      
+      if (!res.ok) throw new Error('Failed to import');
+      
+      const insertedItems = await res.json();
+      setEquipments(prev => [...insertedItems, ...prev]);
+      alert(`นำเข้าสำเร็จ ${insertedItems.length} รายการ ระบบจะสร้าง PDF สำหรับปรินต์ให้ทันที!`);
+      
+      await generateBulkQrPdf(insertedItems, `Imported_QR_${new Date().toISOString().slice(0, 10)}.pdf`);
+    } catch (err) {
+      console.error(err);
+      alert('เกิดข้อผิดพลาดในการอ่านหรือนำเข้าไฟล์ Excel');
+    } finally {
+      setIsImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   };
 
   const handleBulkDelete = async () => {
@@ -177,12 +224,12 @@ export default function EquipmentTable({ initialEquipments }: { initialEquipment
               className="flex items-center space-x-2 px-3 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition text-sm font-medium"
             >
               <FileText size={16} />
-              <span className="hidden sm:inline">โหลดเทมเพลต CSV</span>
+              <span className="hidden sm:inline">โหลดเทมเพลต Excel</span>
             </button>
             
             <input 
               type="file" 
-              accept=".csv" 
+              accept=".xlsx, .xls" 
               className="hidden" 
               ref={fileInputRef} 
               onChange={handleImportCSV} 
@@ -193,7 +240,7 @@ export default function EquipmentTable({ initialEquipments }: { initialEquipment
               className="flex items-center space-x-2 px-3 py-2 bg-[#1e3a8a] text-white rounded-md hover:bg-blue-800 transition text-sm font-medium disabled:opacity-50"
             >
               <Upload size={16} />
-              <span>{isImporting ? 'กำลังนำเข้า...' : 'นำเข้า CSV'}</span>
+              <span>{isImporting ? 'กำลังนำเข้า...' : 'นำเข้า Excel'}</span>
             </button>
           </div>
         </div>
