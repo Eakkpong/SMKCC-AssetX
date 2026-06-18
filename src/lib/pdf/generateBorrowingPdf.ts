@@ -1,6 +1,16 @@
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
-import { THSarabunNew } from './fonts/THSarabunNew'; // We need a base64 font for Thai
+
+// Convert ArrayBuffer to Base64
+function arrayBufferToBase64(buffer: ArrayBuffer) {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary);
+}
 
 export async function generateBorrowingPdf(docData: any) {
   const doc = new jsPDF({
@@ -9,10 +19,20 @@ export async function generateBorrowingPdf(docData: any) {
     format: 'a4'
   });
 
-  // Add Thai font
-  doc.addFileToVFS('THSarabunNew.ttf', THSarabunNew);
-  doc.addFont('THSarabunNew.ttf', 'THSarabun', 'normal');
-  doc.setFont('THSarabun');
+  try {
+    // Fetch THSarabunNew font from CDN
+    const fontUrl = 'https://cdn.jsdelivr.net/npm/font-th-sarabun-new@1.0.0/fonts/THSarabunNew.ttf';
+    const response = await fetch(fontUrl);
+    const fontBuffer = await response.arrayBuffer();
+    const fontBase64 = arrayBufferToBase64(fontBuffer);
+
+    // Add Thai font
+    doc.addFileToVFS('THSarabunNew.ttf', fontBase64);
+    doc.addFont('THSarabunNew.ttf', 'THSarabun', 'normal');
+    doc.setFont('THSarabun');
+  } catch (error) {
+    console.warn('Failed to load Thai font, falling back to default', error);
+  }
 
   const pageWidth = doc.internal.pageSize.getWidth();
   
