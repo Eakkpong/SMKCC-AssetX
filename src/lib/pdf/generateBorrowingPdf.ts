@@ -52,18 +52,18 @@ export async function generateBorrowingPdf(docData: any) {
   doc.text('เรียน หัวหน้าเจ้าหน้าที่พัสดุ', 20, 55);
 
   // Content Row 1
-  doc.text('ข้าพเจ้า', 30, 65);
-  doc.text(`${docData.title}${docData.first_name} ${docData.last_name}`, 50, 64);
-  doc.text('................................................................', 45, 65);
+  doc.text('ข้าพเจ้า', 20, 65);
+  doc.text('....................................................................................................', 35, 65);
+  doc.text(`${docData.title}${docData.first_name} ${docData.last_name}`, 45, 64);
 
-  doc.text('ตำแหน่ง', 120, 65);
-  doc.text(`${docData.position}`, 140, 64);
-  doc.text('.....................................................', 135, 65);
+  doc.text('ตำแหน่ง', 125, 65);
+  doc.text('................................................................', 140, 65);
+  doc.text(`${docData.position}`, 145, 64);
 
   // Content Row 2
   doc.text('ขอยืมพัสดุ - ครุภัณฑ์ เพื่อใช้ในการปฏิบัติราชการงาน', 20, 73);
+  doc.text('...............................................................................................', 105, 73);
   doc.text(`${docData.purpose}`, 115, 72);
-  doc.text('....................................................................................', 110, 73);
   
   doc.text('ดังรายการต่อไปนี้', 20, 81);
 
@@ -130,21 +130,21 @@ export async function generateBorrowingPdf(docData: any) {
     if (align === 'center') {
       doc.text(`(ลงชื่อ)........................................................${nameLine1}`, x + 25, y, { align: 'center' });
       if (sig && sig.signature_data) {
-        doc.addImage(sig.signature_data, 'PNG', x, y + 2, 50, 15);
+        doc.addImage(sig.signature_data, 'PNG', x + 5, y - 12, 40, 12);
       }
-      doc.text(nameLine2, x + 25, y + 22, { align: 'center' }); // increased y gap
+      doc.text(nameLine2, x + 25, y + 8, { align: 'center' }); 
     } else {
       doc.text(`(ลงชื่อ)........................................................${nameLine1}`, x, y);
       if (sig && sig.signature_data) {
-        doc.addImage(sig.signature_data, 'PNG', x + 5, y + 2, 45, 12);
+        doc.addImage(sig.signature_data, 'PNG', x + 5, y - 12, 40, 12);
       }
-      doc.text(nameLine2, x + 15, y + 20); // increased y gap
+      doc.text(nameLine2, x + 15, y + 8); 
     }
   };
 
   drawSig('borrower', 'ผู้ขอยืม', `(${docData.title}${docData.first_name} ${docData.last_name})`, 125, finalY + 5);
 
-  finalY += 38; // Increased gap before approval blocks
+  finalY += 28; // Reduced gap because signature is drawn above the line
 
   const col1X = 20;
   const col2X = 110;
@@ -158,7 +158,7 @@ export async function generateBorrowingPdf(docData: any) {
   doc.text('ตรวจสอบแล้วไม่เห็นควรให้ยืม', col1X + 10, finalY + 12);
   doc.text('เนื่องจาก................................................................', col1X, finalY + 19);
   
-  drawSig('assistant_parcel', '', '(........................................................)', col1X, finalY + 28, 'left');
+  drawSig('assistant_parcel', '', '(........................................................)', col1X, finalY + 35, 'left');
 
   // Right: เจ้าหน้าที่พัสดุ
   doc.text('ความเห็นเจ้าหน้าที่พัสดุ', col2X, finalY + 12);
@@ -167,9 +167,9 @@ export async function generateBorrowingPdf(docData: any) {
   doc.rect(col2X + 30, finalY + 15, 3, 3);
   doc.text('ไม่เห็นชอบ', col2X + 35, finalY + 18);
 
-  drawSig('parcel_officer', '', '(........................................................)', col2X, finalY + 28, 'left');
+  drawSig('parcel_officer', '', '(........................................................)', col2X, finalY + 35, 'left');
 
-  finalY += 56; // Increased gap to prevent overlap with signatures above
+  finalY += 55; // Increased gap to prevent overlap
 
   // Left: หัวหน้าเจ้าหน้าที่พัสดุ
   doc.text('ความเห็นหัวหน้าเจ้าหน้าที่พัสดุ', col1X, finalY);
@@ -178,7 +178,7 @@ export async function generateBorrowingPdf(docData: any) {
   doc.rect(col1X + 30, finalY + 3, 3, 3);
   doc.text('ไม่เห็นชอบ', col1X + 35, finalY + 6);
 
-  drawSig('head_parcel', '', '(นางสาวกชนิภา การประเสริฐ)', col1X, finalY + 15, 'left');
+  drawSig('head_parcel', '', '(นางสาวกชนิภา การประเสริฐ)', col1X, finalY + 25, 'left');
 
   // Right: ผู้อำนวยการ
   doc.text('ความเห็นผู้อำนวยการ', col2X, finalY);
@@ -187,8 +187,8 @@ export async function generateBorrowingPdf(docData: any) {
   doc.rect(col2X + 30, finalY + 3, 3, 3);
   doc.text('ไม่อนุมัติ', col2X + 35, finalY + 6);
 
-  drawSig('director', '', '(นายเผด็จ เปล่งปลั่ง)', col2X, finalY + 15, 'left');
-  doc.text('ผู้อำนวยการวิทยาลัยชุมชนสมุทรสาคร', col2X + 35, finalY + 28, { align: 'center' }); // Adjusted Y
+  drawSig('director', '', '(นายเผด็จ เปล่งปลั่ง)', col2X, finalY + 25, 'left');
+  doc.text('ผู้อำนวยการวิทยาลัยชุมชนสมุทรสาคร', col2X + 35, finalY + 33, { align: 'center' }); // Adjusted Y
 
   finalY += 38; // Final gap before bottom box
 
