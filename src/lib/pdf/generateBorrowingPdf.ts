@@ -216,5 +216,19 @@ export async function generateBorrowingPdf(docData: any) {
   doc.text('ผู้รับคืน ......................................................', 110, finalY + 21);
   doc.text('วันที่ ............./............./.............', 125, finalY + 26);
 
+  // Auto-fill signatures if Director approved
+  const directorSig = docData.signatures?.find((s: any) => s.role === 'director');
+  if (directorSig) {
+    const borrowerSig = docData.signatures?.find((s: any) => s.role === 'borrower');
+    const headParcelSig = docData.signatures?.find((s: any) => s.role === 'head_parcel');
+    
+    if (borrowerSig?.signature_data) {
+      doc.addImage(borrowerSig.signature_data, 'PNG', 45, finalY + 6, 30, 10);
+    }
+    if (headParcelSig?.signature_data) {
+      doc.addImage(headParcelSig.signature_data, 'PNG', 45, finalY + 11, 30, 10);
+    }
+  }
+
   doc.save(`Borrow-${docData.document_no}.pdf`);
 }

@@ -50,3 +50,49 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // Find equipment ids
+      const itemsRes = await client.query('SELECT equipment_id FROM borrowing_items WHERE borrowing_id = $1', [id]);
+      const eqIds = itemsRes.rows.map(r => r.equipment_id);
+
+      if (eqIds.length > 0) {
+        // Release equipments
+        await client.query(`
+          UPDATE equipments 
+          SET status = 'ว่าง', owner_id = NULL 
+          WHERE id = ANY($1::int[])
+        `, [eqIds]);
+      }
+
+      // Update borrowing status
+      await client.query(`
+        UPDATE borrowings 
+        SET status = 'cancelled' 
+        WHERE id = $1
+      `, [id]);
+
+      await client.query('COMMIT');
+      return NextResponse.json({ success: true });
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error('Error cancelling borrowing:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}

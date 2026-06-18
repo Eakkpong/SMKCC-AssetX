@@ -23,9 +23,6 @@ export default async function KioskBorrowDashboard() {
           <h1 className="text-3xl font-bold">Kiosk ยืม-คืนพัสดุ</h1>
           <p className="text-blue-200 mt-1">หน้าจอสำหรับเจ้าหน้าที่พัสดุ (iPad)</p>
         </div>
-        <Link href="/admin" className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition font-medium">
-          กลับหน้าแอดมิน
-        </Link>
       </div>
       
       <BorrowList availableEquipments={availableEquipments} personnel={personnel} />

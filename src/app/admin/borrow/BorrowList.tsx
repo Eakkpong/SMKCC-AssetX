@@ -69,6 +69,24 @@ export default function BorrowList({ availableEquipments, personnel }: { availab
     }
   };
 
+  const handleCancel = async (id: number) => {
+    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการยกเลิกใบยืมนี้? พัสดุจะถูกคืนสถานะเป็นว่างทันที')) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/borrowings/${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        fetchBorrowings();
+      } else {
+        alert('เกิดข้อผิดพลาดในการยกเลิก');
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const toggleEq = (id: number) => {
     if (selectedEqs.includes(id)) {
       setSelectedEqs(selectedEqs.filter(e => e !== id));
@@ -132,18 +150,27 @@ export default function BorrowList({ availableEquipments, personnel }: { availab
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(doc.borrow_date).toLocaleDateString('th-TH')}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      doc.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                      doc.status === 'approved' ? 'bg-green-100 text-green-800' : 
+                      doc.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                      'bg-yellow-100 text-yellow-800'
                     }`}>
-                      {doc.status === 'approved' ? 'อนุมัติแล้ว' : 'รอดำเนินการ'}
+                      {doc.status === 'approved' ? 'อนุมัติแล้ว' : doc.status === 'cancelled' ? 'ยกเลิก' : 'รอดำเนินการ'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <Link href={`/kiosk/sign/${doc.id}`} target="_blank" className="inline-flex items-center space-x-1 text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-md">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
-                      <span>โหมดขอลายเซ็น (Kiosk)</span>
-                    </Link>
+                    <div className="flex items-center justify-end space-x-2">
+                      <Link href={`/kiosk/sign/${doc.id}`} target="_blank" className="inline-flex items-center space-x-1 text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-md">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <span>โหมดขอลายเซ็น (Kiosk)</span>
+                      </Link>
+                      {doc.status !== 'cancelled' && (
+                        <button onClick={() => handleCancel(doc.id)} className="inline-flex items-center space-x-1 text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded-md">
+                          <span>ยกเลิกการยืม</span>
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))
