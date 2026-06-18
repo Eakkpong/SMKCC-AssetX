@@ -20,16 +20,16 @@ export async function generateBorrowingPdf(docData: any) {
   });
 
   try {
-    // Fetch Sarabun font from local public folder
     const fontUrl = '/fonts/Sarabun-Regular.ttf';
     const response = await fetch(fontUrl);
     if (!response.ok) throw new Error('Font fetch failed');
     const fontBuffer = await response.arrayBuffer();
     const fontBase64 = arrayBufferToBase64(fontBuffer);
 
-    // Add Thai font
     doc.addFileToVFS('Sarabun-Regular.ttf', fontBase64);
     doc.addFont('Sarabun-Regular.ttf', 'Sarabun', 'normal');
+    // Also map bold to normal to prevent autoTable fallback issues if it still tries bold
+    doc.addFont('Sarabun-Regular.ttf', 'Sarabun', 'bold');
     doc.setFont('Sarabun');
   } catch (error) {
     console.warn('Failed to load Thai font, falling back to default', error);
@@ -51,14 +51,19 @@ export async function generateBorrowingPdf(docData: any) {
   doc.text('เรื่อง ขออนุมัติยืมพัสดุ-ครุภัณฑ์', 20, 47);
   doc.text('เรียน หัวหน้าเจ้าหน้าที่พัสดุ', 20, 55);
 
-  // Content
-  doc.text(`ข้าพเจ้า..........................................................................ตำแหน่ง...................................................................`, 30, 65);
-  // Overlay text on the dotted lines
-  doc.text(`${docData.title}${docData.first_name} ${docData.last_name}`, 45, 64);
-  doc.text(`${docData.position}`, 135, 64);
+  // Content Row 1
+  doc.text('ข้าพเจ้า', 30, 65);
+  doc.text(`${docData.title}${docData.first_name} ${docData.last_name}`, 50, 64);
+  doc.text('................................................................', 45, 65);
 
-  doc.text(`ขอยืมพัสดุ - ครุภัณฑ์ เพื่อใช้ในการปฏิบัติราชการงาน...........................................................................................`, 20, 73);
-  doc.text(`${docData.purpose}`, 125, 72);
+  doc.text('ตำแหน่ง', 120, 65);
+  doc.text(`${docData.position}`, 140, 64);
+  doc.text('.....................................................', 135, 65);
+
+  // Content Row 2
+  doc.text('ขอยืมพัสดุ - ครุภัณฑ์ เพื่อใช้ในการปฏิบัติราชการงาน', 20, 73);
+  doc.text(`${docData.purpose}`, 115, 72);
+  doc.text('....................................................................................', 110, 73);
   
   doc.text('ดังรายการต่อไปนี้', 20, 81);
 
@@ -71,7 +76,6 @@ export async function generateBorrowingPdf(docData: any) {
     ''
   ]);
 
-  // Pad to at least 5 rows to look like the form
   while (tableData.length < 5) {
     tableData.push(['', '', '', '', '']);
   }
@@ -81,7 +85,8 @@ export async function generateBorrowingPdf(docData: any) {
     head: [['ที่', 'รายการ', 'จำนวน', 'หมายเลข/รหัสครุภัณฑ์', 'หมายเหตุ']],
     body: tableData,
     styles: { font: 'Sarabun', fontSize: 14, lineColor: [0, 0, 0], lineWidth: 0.2 },
-    headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], halign: 'center' },
+    // Critical fix: fontStyle: 'normal' prevents fallback to Helvetica bold!
+    headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], halign: 'center', fontStyle: 'normal' },
     bodyStyles: { textColor: [0, 0, 0] },
     columnStyles: { 
       0: { halign: 'center', cellWidth: 12 },
@@ -95,9 +100,13 @@ export async function generateBorrowingPdf(docData: any) {
   let finalY = (doc as any).lastAutoTable.finalY + 8;
 
   // Dates below table
-  doc.text(`กำหนดรับยืม วันที่......................................................กำหนดส่งคืน วันที่......................................................`, 20, finalY);
+  doc.text(`กำหนดรับยืม วันที่`, 20, finalY);
   doc.text(`${new Date(docData.borrow_date).toLocaleDateString('th-TH')}`, 55, finalY - 1);
+  doc.text('...............................................', 52, finalY);
+
+  doc.text(`กำหนดส่งคืน วันที่`, 110, finalY);
   doc.text(`${new Date(docData.expected_return_date).toLocaleDateString('th-TH')}`, 145, finalY - 1);
+  doc.text('...............................................', 142, finalY);
 
   finalY += 8;
 
@@ -123,19 +132,19 @@ export async function generateBorrowingPdf(docData: any) {
       if (sig && sig.signature_data) {
         doc.addImage(sig.signature_data, 'PNG', x, y + 2, 50, 15);
       }
-      doc.text(nameLine2, x + 25, y + 20, { align: 'center' });
+      doc.text(nameLine2, x + 25, y + 22, { align: 'center' }); // increased y gap
     } else {
       doc.text(`(ลงชื่อ)........................................................${nameLine1}`, x, y);
       if (sig && sig.signature_data) {
         doc.addImage(sig.signature_data, 'PNG', x + 5, y + 2, 45, 12);
       }
-      doc.text(nameLine2, x + 15, y + 17);
+      doc.text(nameLine2, x + 15, y + 20); // increased y gap
     }
   };
 
   drawSig('borrower', 'ผู้ขอยืม', `(${docData.title}${docData.first_name} ${docData.last_name})`, 125, finalY + 5);
 
-  finalY += 32;
+  finalY += 38; // Increased gap before approval blocks
 
   const col1X = 20;
   const col2X = 110;
@@ -160,7 +169,7 @@ export async function generateBorrowingPdf(docData: any) {
 
   drawSig('parcel_officer', '', '(........................................................)', col2X, finalY + 28, 'left');
 
-  finalY += 48;
+  finalY += 56; // Increased gap to prevent overlap with signatures above
 
   // Left: หัวหน้าเจ้าหน้าที่พัสดุ
   doc.text('ความเห็นหัวหน้าเจ้าหน้าที่พัสดุ', col1X, finalY);
@@ -179,9 +188,9 @@ export async function generateBorrowingPdf(docData: any) {
   doc.text('ไม่อนุมัติ', col2X + 35, finalY + 6);
 
   drawSig('director', '', '(นายเผด็จ เปล่งปลั่ง)', col2X, finalY + 15, 'left');
-  doc.text('ผู้อำนวยการวิทยาลัยชุมชนสมุทรสาคร', col2X + 35, finalY + 23, { align: 'center' });
+  doc.text('ผู้อำนวยการวิทยาลัยชุมชนสมุทรสาคร', col2X + 35, finalY + 28, { align: 'center' }); // Adjusted Y
 
-  finalY += 32;
+  finalY += 38; // Final gap before bottom box
 
   if (finalY > 230) {
     doc.addPage();
