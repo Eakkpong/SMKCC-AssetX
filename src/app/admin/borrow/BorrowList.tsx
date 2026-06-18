@@ -23,7 +23,7 @@ export default function BorrowList({ availableEquipments, personnel }: { availab
 
   const fetchBorrowings = async () => {
     try {
-      const res = await fetch('/api/borrowings');
+      const res = await fetch(`/api/borrowings?t=${Date.now()}`);
       const data = await res.json();
       setBorrowings(Array.isArray(data) ? data : []);
     } catch (error) {
