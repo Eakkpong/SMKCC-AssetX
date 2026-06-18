@@ -128,18 +128,18 @@ export async function generateBorrowingPdf(docData: any) {
   // Borrower Signature helper
   const drawSig = (role: string, nameLine1: string, nameLine2: string, x: number, y: number, align: 'left'|'center' = 'center') => {
     const sig = docData.signatures?.find((s: any) => s.role === role);
-    const dashLine = '(ลงชื่อ).........................................'; // Even shorter
+    const dashLine = '(ลงชื่อ).........................................'; 
     
     if (align === 'center') {
       doc.text(`${dashLine}${nameLine1}`, x + 25, y, { align: 'center' });
       if (sig && sig.signature_data) {
-        doc.addImage(sig.signature_data, 'PNG', x + 10, y - 12, 30, 10); // Perfectly floats ABOVE text
+        doc.addImage(sig.signature_data, 'PNG', x + 10, y - 10, 30, 10); // Sits on the line, horizontally centered
       }
       doc.text(nameLine2, x + 25, y + 6, { align: 'center' }); 
     } else {
       doc.text(`${dashLine}${nameLine1}`, x, y);
       if (sig && sig.signature_data) {
-        doc.addImage(sig.signature_data, 'PNG', x + 5, y - 12, 30, 10); // Perfectly floats ABOVE text
+        doc.addImage(sig.signature_data, 'PNG', x + 22, y - 10, 30, 10); // Shifted right to precisely center on the dots
       }
       doc.text(nameLine2, x + 15, y + 6); 
     }
@@ -194,25 +194,27 @@ export async function generateBorrowingPdf(docData: any) {
 
   finalY += 40;
 
-  // Bottom Box
-  doc.rect(15, finalY, 180, 28);
-  
-  doc.text(`วันที่.................................................`, 20, finalY + 6);
-  doc.text(`ผู้จ่ายของ...........................................`, 20, finalY + 14);
-  doc.text(`ผู้รับของ.............................................`, 20, finalY + 22);
+  // Bottom Box - Complete Redesign
+  doc.rect(15, finalY, 180, 32);
+  doc.line(105, finalY, 105, finalY + 32);
 
-  // Right column inside box
-  doc.text('ได้รับ', 95, finalY + 6);
-  doc.rect(105, finalY + 3, 3, 3);
-  doc.text('วัสดุ', 110, finalY + 6);
-  doc.rect(120, finalY + 3, 3, 3);
-  doc.text('ครุภัณฑ์ ตามรายการข้างต้นเรียบร้อย', 125, finalY + 6);
+  // Headers
+  doc.setFont('Sarabun', 'bold');
+  doc.text('การรับมอบพัสดุ (สำหรับวันรับพัสดุ)', 60, finalY + 6, { align: 'center' });
+  doc.text('การส่งคืนพัสดุ (สำหรับวันส่งคืน)', 150, finalY + 6, { align: 'center' });
+  doc.setFont('Sarabun', 'normal');
 
-  doc.text(`ลงชื่อ......................................ผู้รับคืน`, 95, finalY + 14);
-  doc.text(`(......................................)......./......./.......`, 100, finalY + 19);
+  // Left
+  doc.text('ได้รับพัสดุ-ครุภัณฑ์ ตามรายการข้างต้นเรียบร้อยแล้ว', 60, finalY + 11, { align: 'center' });
+  doc.text('ผู้รับของ .....................................................', 20, finalY + 17);
+  doc.text('ผู้จ่ายของ ...................................................', 20, finalY + 23);
+  doc.text('วันที่ ............./............./.............', 35, finalY + 29);
 
-  doc.text(`ลงชื่อ......................................ผู้คืน`, 95, finalY + 22);
-  doc.text(`(......................................)......./......./.......`, 100, finalY + 27);
+  // Right
+  doc.text('ได้รับคืนพัสดุ-ครุภัณฑ์ ตามรายการข้างต้นเรียบร้อยแล้ว', 150, finalY + 11, { align: 'center' });
+  doc.text('ผู้คืนของ .....................................................', 110, finalY + 17);
+  doc.text('ผู้รับคืน ......................................................', 110, finalY + 23);
+  doc.text('วันที่ ............./............./.............', 125, finalY + 29);
 
   doc.save(`Borrow-${docData.document_no}.pdf`);
 }
