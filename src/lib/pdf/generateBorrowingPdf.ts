@@ -147,7 +147,7 @@ export async function generateBorrowingPdf(docData: any) {
 
   drawSig('borrower', 'ผู้ขอยืม', `(${docData.title}${docData.first_name} ${docData.last_name})`, 125, finalY + 10);
 
-  finalY += 18;
+  finalY += 24;
 
   const col1X = 15;
   const col2X = 105;
@@ -171,7 +171,7 @@ export async function generateBorrowingPdf(docData: any) {
 
   drawSig('parcel_officer', '', '(..................................................)', col2X, finalY + 30, 'left');
 
-  finalY += 38;
+  finalY += 44;
 
   // Left: หัวหน้าเจ้าหน้าที่พัสดุ
   doc.text('ความเห็นหัวหน้าเจ้าหน้าที่พัสดุ', col1X, finalY);
@@ -192,7 +192,7 @@ export async function generateBorrowingPdf(docData: any) {
   drawSig('director', '', '(นายเผด็จ เปล่งปลั่ง)', col2X, finalY + 20, 'left');
   doc.text('ผู้อำนวยการวิทยาลัยชุมชนสมุทรสาคร', col2X + 20, finalY + 30, { align: 'center' });
 
-  finalY += 34;
+  finalY += 38;
 
   // Bottom Box - Complete Redesign
   doc.rect(15, finalY, 180, 28);
