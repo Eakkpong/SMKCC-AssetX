@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Search, Edit, Printer } from 'lucide-react';
+import ExportSingleQrPdfButton from '@/components/ExportSingleQrPdfButton';
 export default function EquipmentTable({ initialEquipments }: { initialEquipments: any[] }) {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -67,9 +68,7 @@ export default function EquipmentTable({ initialEquipments }: { initialEquipment
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
-                  <Link href={`/admin/equipment/${eq.id}/print-qr`} target="_blank" className="text-gray-600 hover:text-gray-900 inline-flex items-center" title="พิมพ์ QR Code">
-                    <Printer size={16} className="mr-1"/> พิมพ์ QR
-                  </Link>
+                  <ExportSingleQrPdfButton equipment={eq} />
                   <Link href={`/admin/equipment/${eq.id}/edit`} className="text-indigo-600 hover:text-indigo-900 inline-flex items-center">
                     <Edit size={16} className="mr-1"/> แก้ไข
                   </Link>
