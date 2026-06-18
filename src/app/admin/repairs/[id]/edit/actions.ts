@@ -91,7 +91,7 @@ export async function updateRepairStatus(formData: FormData) {
 
           let feedbackHtml = '';
           if (status === 'เสร็จสิ้น') {
-            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://smkcc-asset-x.vercel.app';
             const feedbackUrl = `${baseUrl}/repair/${repair_id}/feedback`;
             feedbackHtml = `
               <div style="margin-top: 30px; text-align: center;">
