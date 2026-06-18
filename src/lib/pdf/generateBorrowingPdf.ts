@@ -169,7 +169,7 @@ export async function generateBorrowingPdf(docData: any) {
   doc.rect(col1X + 30, finalY + 3, 3, 3);
   doc.text('ไม่เห็นชอบ', col1X + 35, finalY + 6);
 
-  drawSig('head_parcel', '', '(นางสาวพรพรรณ นิลศิริ)', col1X, finalY + 15, 'left');
+  drawSig('head_parcel', '', '(นางสาวกชนิภา การประเสริฐ)', col1X, finalY + 15, 'left');
 
   // Right: ผู้อำนวยการ
   doc.text('ความเห็นผู้อำนวยการ', col2X, finalY);
