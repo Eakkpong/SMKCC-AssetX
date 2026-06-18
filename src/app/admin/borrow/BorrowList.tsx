@@ -138,7 +138,7 @@ export default function BorrowList({ availableEquipments, personnel }: { availab
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <Link href={`/admin/borrow/kiosk/${doc.id}`} target="_blank" className="inline-flex items-center space-x-1 text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-md">
+                    <Link href={`/kiosk/borrow/${doc.id}`} target="_blank" className="inline-flex items-center space-x-1 text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-md">
                       <PenTool size={16} />
                       <span>โหมดขอลายเซ็น (iPad)</span>
                     </Link>

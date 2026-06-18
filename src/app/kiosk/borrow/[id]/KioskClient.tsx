@@ -82,7 +82,7 @@ export default function KioskClient({ docData, docId }: { docData: any, docId: s
     <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-lg overflow-hidden">
       <div className="bg-[#1e3a8a] text-white p-6 flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Link href="/admin/borrow" className="text-white/80 hover:text-white transition">
+          <Link href="/kiosk/borrow" className="text-white/80 hover:text-white transition">
             <ArrowLeft size={28} />
           </Link>
           <div>
