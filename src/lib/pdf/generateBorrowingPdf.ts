@@ -12,6 +12,16 @@ function arrayBufferToBase64(buffer: ArrayBuffer) {
   return window.btoa(binary);
 }
 
+// Helper to get image dimensions
+const getImageDimensions = (base64: string): Promise<{w: number, h: number}> => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve({ w: img.width, h: img.height });
+    img.onerror = () => resolve({ w: 300, h: 100 }); // fallback
+    img.src = base64;
+  });
+};
+
 export async function generateBorrowingPdf(docData: any) {
   const doc = new jsPDF({
     orientation: 'portrait',
@@ -126,26 +136,40 @@ export async function generateBorrowingPdf(docData: any) {
   doc.text('จึงเรียนมาเพื่อพิจารณาอนุมัติ', 25, finalY);
 
   // Borrower Signature helper
-  const drawSig = (role: string, nameLine1: string, nameLine2: string, x: number, y: number, align: 'left'|'center' = 'center') => {
+  const drawSig = async (role: string, nameLine1: string, nameLine2: string, x: number, y: number, align: 'left'|'center' = 'center') => {
     const sig = docData.signatures?.find((s: any) => s.role === role);
     const dashLine = '(ลงชื่อ).........................................'; 
     
+    let finalW = 30;
+    let finalH = 10;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    if (sig && sig.signature_data) {
+      const { w, h } = await getImageDimensions(sig.signature_data);
+      const ratio = Math.min(30 / w, 10 / h);
+      finalW = w * ratio;
+      finalH = h * ratio;
+      offsetX = (30 - finalW) / 2;
+      offsetY = (10 - finalH) / 2;
+    }
+
     if (align === 'center') {
       doc.text(`${dashLine}${nameLine1}`, x + 25, y, { align: 'center' });
       if (sig && sig.signature_data) {
-        doc.addImage(sig.signature_data, 'PNG', x + 10, y - 10, 30, 10); // Sits on the line, horizontally centered
+        doc.addImage(sig.signature_data, 'PNG', x + 10 + offsetX, y - 10 + offsetY, finalW, finalH);
       }
       doc.text(nameLine2, x + 25, y + 6, { align: 'center' }); 
     } else {
       doc.text(`${dashLine}${nameLine1}`, x, y);
       if (sig && sig.signature_data) {
-        doc.addImage(sig.signature_data, 'PNG', x + 22, y - 10, 30, 10); // Shifted right to precisely center on the dots
+        doc.addImage(sig.signature_data, 'PNG', x + 22 + offsetX, y - 10 + offsetY, finalW, finalH);
       }
       doc.text(nameLine2, x + 15, y + 6); 
     }
   };
 
-  drawSig('borrower', 'ผู้ขอยืม', `(${docData.title}${docData.first_name} ${docData.last_name})`, 125, finalY + 10);
+  await drawSig('borrower', 'ผู้ขอยืม', `(${docData.title}${docData.first_name} ${docData.last_name})`, 125, finalY + 10);
 
   finalY += 24;
 
@@ -160,7 +184,7 @@ export async function generateBorrowingPdf(docData: any) {
   doc.text('ตรวจสอบแล้วไม่เห็นควรให้ยืม', col1X + 10, finalY + 12);
   doc.text('เนื่องจาก...............................................', col1X, finalY + 17);
   
-  drawSig('assistant_parcel', '', '(..................................................)', col1X, finalY + 30, 'left');
+  await drawSig('assistant_parcel', '', '(..................................................)', col1X, finalY + 30, 'left');
 
   // Right: เจ้าหน้าที่พัสดุ
   doc.text('ความเห็นเจ้าหน้าที่พัสดุ', col2X, finalY);
@@ -169,7 +193,7 @@ export async function generateBorrowingPdf(docData: any) {
   doc.rect(col2X + 25, finalY + 3, 3, 3);
   doc.text('ไม่เห็นชอบ', col2X + 30, finalY + 6);
 
-  drawSig('parcel_officer', '', '(..................................................)', col2X, finalY + 30, 'left');
+  await drawSig('parcel_officer', '', '(..................................................)', col2X, finalY + 30, 'left');
 
   finalY += 44;
 
@@ -180,7 +204,7 @@ export async function generateBorrowingPdf(docData: any) {
   doc.rect(col1X + 25, finalY + 3, 3, 3);
   doc.text('ไม่เห็นชอบ', col1X + 30, finalY + 6);
 
-  drawSig('head_parcel', '', '(นางสาวกชนิภา การประเสริฐ)', col1X, finalY + 20, 'left');
+  await drawSig('head_parcel', '', '(นางสาวกชนิภา การประเสริฐ)', col1X, finalY + 20, 'left');
 
   // Right: ผู้อำนวยการ
   doc.text('ความเห็นผู้อำนวยการ', col2X, finalY);
@@ -189,7 +213,7 @@ export async function generateBorrowingPdf(docData: any) {
   doc.rect(col2X + 25, finalY + 3, 3, 3);
   doc.text('ไม่อนุมัติ', col2X + 30, finalY + 6);
 
-  drawSig('director', '', '(นายเผด็จ เปล่งปลั่ง)', col2X, finalY + 20, 'left');
+  await drawSig('director', '', '(นายเผด็จ เปล่งปลั่ง)', col2X, finalY + 20, 'left');
   doc.text('ผู้อำนวยการวิทยาลัยชุมชนสมุทรสาคร', col2X + 20, finalY + 30, { align: 'center' });
 
   finalY += 38;
@@ -216,6 +240,16 @@ export async function generateBorrowingPdf(docData: any) {
   doc.text('ผู้รับคืน ......................................................', 110, finalY + 21);
   doc.text('วันที่ ............./............./.............', 125, finalY + 26);
 
+  const drawDirectSig = async (base64: string, startX: number, startY: number, maxW = 30, maxH = 10) => {
+    const { w, h } = await getImageDimensions(base64);
+    const ratio = Math.min(maxW / w, maxH / h);
+    const finalW = w * ratio;
+    const finalH = h * ratio;
+    const offsetX = (maxW - finalW) / 2;
+    const offsetY = (maxH - finalH) / 2;
+    doc.addImage(base64, 'PNG', startX + offsetX, startY + offsetY, finalW, finalH);
+  };
+
   // Auto-fill signatures if Director approved (Left Side)
   const directorSig = docData.signatures?.find((s: any) => s.role === 'director');
   if (directorSig) {
@@ -223,10 +257,10 @@ export async function generateBorrowingPdf(docData: any) {
     const headParcelSig = docData.signatures?.find((s: any) => s.role === 'head_parcel');
     
     if (borrowerSig?.signature_data) {
-      doc.addImage(borrowerSig.signature_data, 'PNG', 45, finalY + 6, 30, 10);
+      await drawDirectSig(borrowerSig.signature_data, 45, finalY + 6);
     }
     if (headParcelSig?.signature_data) {
-      doc.addImage(headParcelSig.signature_data, 'PNG', 45, finalY + 11, 30, 10);
+      await drawDirectSig(headParcelSig.signature_data, 45, finalY + 11);
     }
   }
 
@@ -236,10 +270,10 @@ export async function generateBorrowingPdf(docData: any) {
     const receiverSig = docData.signatures?.find((s: any) => s.role === 'receiver');
     
     if (returnerSig?.signature_data) {
-      doc.addImage(returnerSig.signature_data, 'PNG', 135, finalY + 6, 30, 10);
+      await drawDirectSig(returnerSig.signature_data, 135, finalY + 6);
     }
     if (receiverSig?.signature_data) {
-      doc.addImage(receiverSig.signature_data, 'PNG', 135, finalY + 11, 30, 10);
+      await drawDirectSig(receiverSig.signature_data, 135, finalY + 11);
     }
     
     // Also fill the actual return date if available

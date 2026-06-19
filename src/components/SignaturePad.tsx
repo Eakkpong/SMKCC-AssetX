@@ -41,7 +41,10 @@ export default function SignaturePad({ onSave, onCancel, title }: SignaturePadPr
             className: 'w-full h-64 md:h-80 cursor-crosshair',
           }}
           backgroundColor="rgba(0,0,0,0)"
-          penColor="blue"
+          penColor="#1e3a8a"
+          minWidth={0.5}
+          maxWidth={1.5}
+          velocityFilterWeight={0.7}
         />
       </div>
 
