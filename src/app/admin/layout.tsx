@@ -48,6 +48,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <FileSignature size={20} />
             <span>ยืม-คืนพัสดุ</span>
           </Link>
+          <Link href="/admin/personnel/signatures" className="flex items-center space-x-3 px-4 py-3 ml-4 rounded-md hover:bg-blue-800 transition text-sm">
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+            <span>ตั้งค่าลายเซ็นรับคืนพัสดุ</span>
+          </Link>
         </nav>
 
         <div className="p-4 border-t border-blue-800">

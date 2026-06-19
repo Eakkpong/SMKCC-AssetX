@@ -17,6 +17,13 @@ export default function BorrowList({ availableEquipments, personnel }: { availab
   const [selectedEqs, setSelectedEqs] = useState<number[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
+  // Return State
+  const [showReturnDialog, setShowReturnDialog] = useState(false);
+  const [selectedReturnDoc, setSelectedReturnDoc] = useState<any>(null);
+  const [receiverId, setReceiverId] = useState('');
+
+  const parcelOfficers = personnel.filter(p => p.position && p.position.includes('พัสดุ'));
+
   useEffect(() => {
     fetchBorrowings();
   }, []);
@@ -87,6 +94,32 @@ export default function BorrowList({ availableEquipments, personnel }: { availab
     }
   };
 
+  const handleReturn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedReturnDoc || !receiverId) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/borrowings/${selectedReturnDoc.id}/return`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ receiver_id: parseInt(receiverId) })
+      });
+      if (res.ok) {
+        setShowReturnDialog(false);
+        setSelectedReturnDoc(null);
+        setReceiverId('');
+        fetchBorrowings();
+        window.location.reload();
+      } else {
+        alert('เกิดข้อผิดพลาดในการรับคืน');
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const toggleEq = (id: number) => {
     if (selectedEqs.includes(id)) {
       setSelectedEqs(selectedEqs.filter(e => e !== id));
@@ -152,9 +185,10 @@ export default function BorrowList({ availableEquipments, personnel }: { availab
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                       doc.status === 'approved' ? 'bg-green-100 text-green-800' : 
                       doc.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                      doc.status === 'returned' ? 'bg-gray-100 text-gray-800' :
                       'bg-yellow-100 text-yellow-800'
                     }`}>
-                      {doc.status === 'approved' ? 'อนุมัติแล้ว' : doc.status === 'cancelled' ? 'ยกเลิก' : 'รอดำเนินการ'}
+                      {doc.status === 'approved' ? 'อนุมัติแล้ว' : doc.status === 'cancelled' ? 'ยกเลิก' : doc.status === 'returned' ? 'คืนแล้ว' : 'รอดำเนินการ'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -165,9 +199,14 @@ export default function BorrowList({ availableEquipments, personnel }: { availab
                         </svg>
                         <span>โหมดขอลายเซ็น (Kiosk)</span>
                       </Link>
-                      {doc.status !== 'cancelled' && (
+                      {doc.status === 'approved' && (
+                        <button onClick={() => { setSelectedReturnDoc(doc); setShowReturnDialog(true); }} className="inline-flex items-center space-x-1 text-teal-600 hover:text-teal-900 bg-teal-50 px-3 py-1 rounded-md">
+                          <span>รับคืนพัสดุ</span>
+                        </button>
+                      )}
+                      {(doc.status === 'pending' || doc.status === 'approved') && (
                         <button onClick={() => handleCancel(doc.id)} className="inline-flex items-center space-x-1 text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded-md">
-                          <span>ยกเลิกการยืม</span>
+                          <span>ยกเลิก</span>
                         </button>
                       )}
                     </div>
@@ -235,6 +274,46 @@ export default function BorrowList({ availableEquipments, personnel }: { availab
                     {submitting ? 'กำลังสร้าง...' : 'สร้างใบยืม'}
                   </button>
                   <button type="button" onClick={() => setShowNewDialog(false)} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    ยกเลิก
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Return Dialog */}
+      {showReturnDialog && selectedReturnDoc && (
+        <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={() => setShowReturnDialog(false)}></div>
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div className="relative z-10 inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <form onSubmit={handleReturn}>
+                <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4" id="modal-title">ทำรายการรับคืนพัสดุ</h3>
+                  <p className="text-sm text-gray-500 mb-4">
+                    เอกสารเลขที่: <span className="font-bold text-blue-600">{selectedReturnDoc.document_no}</span>
+                    <br />ผู้ขอยืม: {selectedReturnDoc.first_name} {selectedReturnDoc.last_name}
+                  </p>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">ระบุผู้รับคืน (เจ้าหน้าที่พัสดุ)</label>
+                      <select required value={receiverId} onChange={e => setReceiverId(e.target.value)} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
+                        <option value="">-- เลือกเจ้าหน้าที่ผู้รับคืน --</option>
+                        {parcelOfficers.map(p => (
+                          <option key={p.id} value={p.id}>{p.title}{p.first_name} {p.last_name} ({p.position})</option>
+                        ))}
+                      </select>
+                      <p className="text-xs text-gray-500 mt-2">* ระบบจะดึงลายเซ็นที่บันทึกไว้ในโปรไฟล์ของเจ้าหน้าที่ท่านนี้ มาประทับในเอกสาร PDF การส่งคืนพัสดุโดยอัตโนมัติ</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                  <button type="submit" disabled={submitting} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-teal-600 text-base font-medium text-white hover:bg-teal-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">
+                    {submitting ? 'กำลังบันทึก...' : 'ยืนยันรับคืนพัสดุ'}
+                  </button>
+                  <button type="button" onClick={() => setShowReturnDialog(false)} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                     ยกเลิก
                   </button>
                 </div>

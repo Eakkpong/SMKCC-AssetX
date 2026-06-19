@@ -216,7 +216,7 @@ export async function generateBorrowingPdf(docData: any) {
   doc.text('ผู้รับคืน ......................................................', 110, finalY + 21);
   doc.text('วันที่ ............./............./.............', 125, finalY + 26);
 
-  // Auto-fill signatures if Director approved
+  // Auto-fill signatures if Director approved (Left Side)
   const directorSig = docData.signatures?.find((s: any) => s.role === 'director');
   if (directorSig) {
     const borrowerSig = docData.signatures?.find((s: any) => s.role === 'borrower');
@@ -227,6 +227,28 @@ export async function generateBorrowingPdf(docData: any) {
     }
     if (headParcelSig?.signature_data) {
       doc.addImage(headParcelSig.signature_data, 'PNG', 45, finalY + 11, 30, 10);
+    }
+  }
+
+  // Auto-fill signatures if Returned (Right Side)
+  if (docData.status === 'returned') {
+    const returnerSig = docData.signatures?.find((s: any) => s.role === 'returner');
+    const receiverSig = docData.signatures?.find((s: any) => s.role === 'receiver');
+    
+    if (returnerSig?.signature_data) {
+      doc.addImage(returnerSig.signature_data, 'PNG', 135, finalY + 6, 30, 10);
+    }
+    if (receiverSig?.signature_data) {
+      doc.addImage(receiverSig.signature_data, 'PNG', 135, finalY + 11, 30, 10);
+    }
+    
+    // Also fill the actual return date if available
+    if (docData.actual_return_date) {
+      const actualDate = new Date(docData.actual_return_date).toLocaleDateString('th-TH');
+      doc.text(actualDate, 137, finalY + 26);
+    } else {
+      const today = new Date().toLocaleDateString('th-TH');
+      doc.text(today, 137, finalY + 26);
     }
   }
 
