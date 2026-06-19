@@ -132,7 +132,11 @@ export default function EquipmentTable({ initialEquipments }: { initialEquipment
       setEquipments(prev => [...insertedItems, ...prev]);
       alert(`นำเข้าสำเร็จ ${insertedItems.length} รายการ ระบบจะสร้าง PDF สำหรับปรินต์ให้ทันที!`);
       
-      await generateBulkQrPdf(insertedItems, `Imported_QR_${new Date().toISOString().slice(0, 10)}.pdf`);
+      try {
+        await generateBulkQrPdf(insertedItems, `Imported_QR_${new Date().toISOString().slice(0, 10)}.pdf`);
+      } catch (pdfErr: any) {
+        alert(pdfErr.message || 'เกิดข้อผิดพลาดในการสร้าง PDF');
+      }
     } catch (err) {
       console.error(err);
       alert('เกิดข้อผิดพลาดในการอ่านหรือนำเข้าไฟล์ Excel');
@@ -167,9 +171,13 @@ export default function EquipmentTable({ initialEquipments }: { initialEquipment
   };
 
   const handleBulkPrintQr = async () => {
-    const selectedEquipments = equipments.filter(eq => selectedIds.includes(eq.id));
-    await generateBulkQrPdf(selectedEquipments, `Selected_QR_${new Date().toISOString().slice(0, 10)}.pdf`);
-    setSelectedIds([]); // Optional: deselect after print
+    try {
+      const selectedEquipments = equipments.filter(eq => selectedIds.includes(eq.id));
+      await generateBulkQrPdf(selectedEquipments, `Selected_QR_${new Date().toISOString().slice(0, 10)}.pdf`);
+      setSelectedIds([]); // Optional: deselect after print
+    } catch (err: any) {
+      alert(err.message || 'เกิดข้อผิดพลาดในการพิมพ์ QR Code');
+    }
   };
 
   return (

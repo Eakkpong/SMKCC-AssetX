@@ -1,7 +1,16 @@
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
 
-export async function generateBulkQrPdf(equipments: any[], filename: string = 'bulk_qr_codes.pdf') {
+export interface Equipment {
+  asset_code: string;
+  category?: string;
+  brand?: string;
+  model?: string;
+  location?: string;
+  [key: string]: any;
+}
+
+export async function generateBulkQrPdf(equipments: Equipment[], filename: string = 'bulk_qr_codes.pdf') {
   if (!equipments || equipments.length === 0) return;
 
   try {
@@ -29,6 +38,19 @@ export async function generateBulkQrPdf(equipments: any[], filename: string = 'b
     const stickerWidth = 38;
     const stickerHeight = 55;
     
+    // Pre-generate QR codes in chunks to improve speed but avoid memory spikes
+    const qrDataUrls: string[] = [];
+    const chunkSize = 50;
+    for (let i = 0; i < equipments.length; i += chunkSize) {
+      const chunk = equipments.slice(i, i + chunkSize);
+      const promises = chunk.map(eq => {
+        const url = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://smkcc-asset-x.vercel.app'}/equipment/${eq.asset_code}`;
+        return QRCode.toDataURL(url, { errorCorrectionLevel: 'H', margin: 1, width: 300 });
+      });
+      const chunkUrls = await Promise.all(promises);
+      qrDataUrls.push(...chunkUrls);
+    }
+
     for (let i = 0; i < equipments.length; i++) {
       const eq = equipments[i];
       const pageIndex = Math.floor(i / itemsPerPage);
@@ -44,9 +66,7 @@ export async function generateBulkQrPdf(equipments: any[], filename: string = 'b
       const x = marginX + (col * stickerWidth);
       const y = marginY + (row * stickerHeight);
 
-      // Generate QR Code image
-      const url = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://smkcc-asset-x.vercel.app'}/equipment/${eq.asset_code}`;
-      const qrDataUrl = await QRCode.toDataURL(url, { errorCorrectionLevel: 'H', margin: 1, width: 300 });
+      const qrDataUrl = qrDataUrls[i];
 
       // Draw Border
       doc.setLineWidth(0.3);
@@ -67,6 +87,6 @@ export async function generateBulkQrPdf(equipments: any[], filename: string = 'b
     doc.save(filename);
   } catch (error) {
     console.error('Error generating bulk QR PDF:', error);
-    alert('เกิดข้อผิดพลาดในการสร้าง PDF สติ๊กเกอร์ QR Code แบบกลุ่ม');
+    throw new Error('เกิดข้อผิดพลาดในการสร้าง PDF สติ๊กเกอร์ QR Code แบบกลุ่ม: ' + (error as Error).message);
   }
 }
