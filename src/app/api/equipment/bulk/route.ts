@@ -14,6 +14,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid data format or empty array' }, { status: 400 });
     }
 
+    // 1. Filter out empty rows without asset_code
+    // 2. Deduplicate by asset_code (keep the last one encountered) to prevent Postgres ON CONFLICT errors
+    const uniqueEquipmentsMap = new Map();
+    for (const eq of equipments) {
+      if (!eq.asset_code || String(eq.asset_code).trim() === '') continue;
+      uniqueEquipmentsMap.set(String(eq.asset_code).trim(), eq);
+    }
+    
+    const finalEquipments = Array.from(uniqueEquipmentsMap.values());
+
+    if (finalEquipments.length === 0) {
+      return NextResponse.json({ error: 'No valid equipments with asset_code found' }, { status: 400 });
+    }
+
     const insertedEquipments = [];
 
     // Use a transaction
@@ -23,8 +37,8 @@ export async function POST(request: Request) {
 
       // Process in chunks of 1000 to prevent hitting parameter limits (65535 max)
       const chunkSize = 1000;
-      for (let i = 0; i < equipments.length; i += chunkSize) {
-        const chunk = equipments.slice(i, i + chunkSize);
+      for (let i = 0; i < finalEquipments.length; i += chunkSize) {
+        const chunk = finalEquipments.slice(i, i + chunkSize);
         
         const valueStrings = [];
         const params: any[] = [];
