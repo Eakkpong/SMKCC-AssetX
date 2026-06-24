@@ -52,8 +52,18 @@ export async function POST(request: Request) {
           const storage = eq.storage_gb ? parseInt(String(eq.storage_gb).replace(/\D/g, '')) : null;
 
           params.push(
-            eq.asset_code, eq.category, eq.brand, eq.model, eq.specifications, eq.location, eq.status || 'ใช้งานได้',
-            eq.serial_number, eq.mac_address, eq.ip_address, eq.os_version, eq.cpu_detail, 
+            eq.asset_code, 
+            eq.category || 'ไม่ระบุ', 
+            eq.brand || '-', 
+            eq.model || '-', 
+            eq.specifications || '-', 
+            eq.location || 'ไม่ระบุ', 
+            eq.status || 'ใช้งานได้',
+            eq.serial_number || null, 
+            eq.mac_address || null, 
+            eq.ip_address || null, 
+            eq.os_version || null, 
+            eq.cpu_detail || null, 
             isNaN(ram!) ? null : ram,
             isNaN(storage!) ? null : storage
           );
