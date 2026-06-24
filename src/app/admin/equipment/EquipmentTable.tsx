@@ -126,7 +126,14 @@ export default function EquipmentTable({ initialEquipments }: { initialEquipment
         body: JSON.stringify(rows)
       });
       
-      if (!res.ok) throw new Error('Failed to import');
+      if (!res.ok) {
+        let errorMsg = 'Failed to import';
+        try {
+          const errorData = await res.json();
+          errorMsg = errorData.details || errorData.error || errorMsg;
+        } catch (e) {}
+        throw new Error(errorMsg);
+      }
       
       const insertedItems = await res.json();
       setEquipments(prev => [...insertedItems, ...prev]);
@@ -139,7 +146,7 @@ export default function EquipmentTable({ initialEquipments }: { initialEquipment
       }
     } catch (err) {
       console.error(err);
-      alert('เกิดข้อผิดพลาดในการอ่านหรือนำเข้าไฟล์ Excel');
+      alert(`เกิดข้อผิดพลาดในการนำเข้าไฟล์: ${(err as Error).message}`);
     } finally {
       setIsImporting(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
