@@ -34,8 +34,8 @@ export async function POST(request: Request) {
           valueStrings.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
           
           // Data Type Validation: strip non-digits to handle inputs like "8 GB" or "8GB"
-          const ram = eq.ram_gb ? parseInt(String(eq.ram_gb).replace(/\\D/g, '')) : null;
-          const storage = eq.storage_gb ? parseInt(String(eq.storage_gb).replace(/\\D/g, '')) : null;
+          const ram = eq.ram_gb ? parseInt(String(eq.ram_gb).replace(/\D/g, '')) : null;
+          const storage = eq.storage_gb ? parseInt(String(eq.storage_gb).replace(/\D/g, '')) : null;
 
           params.push(
             eq.asset_code, eq.category, eq.brand, eq.model, eq.specifications, eq.location, eq.status || 'ใช้งานได้',
@@ -50,6 +50,21 @@ export async function POST(request: Request) {
             asset_code, category, brand, model, specifications, location, status,
             serial_number, mac_address, ip_address, os_version, cpu_detail, ram_gb, storage_gb
           ) VALUES ${valueStrings.join(', ')}
+          ON CONFLICT (asset_code) DO UPDATE SET
+            category = EXCLUDED.category,
+            brand = EXCLUDED.brand,
+            model = EXCLUDED.model,
+            specifications = EXCLUDED.specifications,
+            location = EXCLUDED.location,
+            status = EXCLUDED.status,
+            serial_number = EXCLUDED.serial_number,
+            mac_address = EXCLUDED.mac_address,
+            ip_address = EXCLUDED.ip_address,
+            os_version = EXCLUDED.os_version,
+            cpu_detail = EXCLUDED.cpu_detail,
+            ram_gb = EXCLUDED.ram_gb,
+            storage_gb = EXCLUDED.storage_gb,
+            updated_at = CURRENT_TIMESTAMP
           RETURNING *
         `;
 

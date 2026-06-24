@@ -237,7 +237,7 @@ export default function EquipmentTable({ initialEquipments }: { initialEquipment
             
             <input 
               type="file" 
-              accept=".xlsx, .xls" 
+              accept=".xlsx" 
               className="hidden" 
               ref={fileInputRef} 
               onChange={handleImportCSV} 
