@@ -3,9 +3,10 @@ import { MonitorSmartphone, Users, CheckCircle, AlertTriangle, Edit } from 'luci
 import DashboardFilters from './DashboardFilters';
 import Link from 'next/link';
 import ExportPdfButton from '@/components/ExportPdfButton';
+import SortableHeader from '@/components/SortableHeader';
 
-export default async function AdminDashboard({ searchParams }: { searchParams: Promise<{ q?: string, status?: string, dept?: string }> }) {
-  const { q, status, dept } = await searchParams;
+export default async function AdminDashboard({ searchParams }: { searchParams: Promise<{ q?: string, status?: string, dept?: string, sort?: string, dir?: string }> }) {
+  const { q, status, dept, sort = 'updated_at', dir = 'desc' } = await searchParams;
 
   const deptResult = await pool.query('SELECT * FROM departments ORDER BY dept_name ASC');
   const departments = deptResult.rows;
@@ -51,7 +52,15 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
     paramIndex++;
   }
 
-  tableQuery += ` ORDER BY e.updated_at DESC LIMIT 100`;
+  const allowedSortCols = ['asset_code', 'category', 'location', 'dept_name', 'first_name', 'status', 'updated_at'];
+  const sortCol = allowedSortCols.includes(sort) ? sort : 'updated_at';
+  const sortDir = dir === 'asc' ? 'ASC' : 'DESC';
+
+  let orderByClause = `e.${sortCol}`;
+  if (sortCol === 'dept_name') orderByClause = `d.dept_name`;
+  if (sortCol === 'first_name') orderByClause = `p.first_name`;
+
+  tableQuery += ` ORDER BY ${orderByClause} ${sortDir} LIMIT 100`;
 
   const equipmentsResult = await pool.query(tableQuery, queryParams);
   const equipments = equipmentsResult.rows;
@@ -120,12 +129,12 @@ export default async function AdminDashboard({ searchParams }: { searchParams: P
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รหัสครุภัณฑ์</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภท/ยี่ห้อ</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">สถานที่</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">สังกัด</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">ผู้ครอบครอง</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+                <SortableHeader label="รหัสครุภัณฑ์" sortKey="asset_code" />
+                <SortableHeader label="ประเภท/ยี่ห้อ" sortKey="category" />
+                <SortableHeader label="สถานที่" sortKey="location" className="hidden md:table-cell" />
+                <SortableHeader label="สังกัด" sortKey="dept_name" className="hidden lg:table-cell" />
+                <SortableHeader label="ผู้ครอบครอง" sortKey="first_name" className="hidden sm:table-cell" />
+                <SortableHeader label="สถานะ" sortKey="status" />
                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
               </tr>
             </thead>
